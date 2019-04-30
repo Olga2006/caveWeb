@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>Inscription</display-name>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list> 
+   <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/jsp/error/error404.jsp</location>
+</error-page>
+<error-page>
+    <location>/WEB-INF/jsp/error/error500.jsp</location>
+</error-page> 
+  <filter>
+    <filter-name>Set Character Encoding</filter-name>
+    <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>ignore</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>Set Character Encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+<filter>
+    <filter-name>RestrictionFilter</filter-name>
+    <filter-class>com.cave.filters.RestrictionFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>RestrictionFilter</filter-name>
+    <url-pattern>/jsp/restreint/*</url-pattern>
+</filter-mapping>
+</web-app>
