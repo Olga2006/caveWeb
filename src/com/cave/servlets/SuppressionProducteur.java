@@ -23,15 +23,14 @@ public class SuppressionProducteur extends HttpServlet {
     public static final String  VUE_FORM             = "/WEB-INF/jsp/restreint/afficherProducteurs.jsp";
     public static final String  ACCES_CONNEXION      = "/connection";
 
-    private static final String CHAMP_ERREUR_DEL     = "erreurDel";
-
     public static final String  PARAM_ID_PRODUCTEUR  = "idProducteur";
     public static final String  PARAM_NOM_PRODUCTEUR = "nomProducteur";
     public static final String  PARAM_SESSION_USER   = "sessionUtilisateur";
 
-    public static final String  ATT_SUCCES           = "succes";
-    public static final String  ATT_ECHEC            = "echec";
+    public static final String  ATT_SUCCES_DEL       = "successDel";
     public static final String  ATT_ERREURS          = "erreurs";
+    private static final String CHAMP_ERREUR_DAO     = "erreurDao";
+    private static final String CHAMP_ECHEC_DEL      = "echecDel";
     public static final String  ATT_SESSION_USER     = "sessionUtilisateur";
 
     public static final String  CONF_DAO_FACTORY     = "daofactory";
@@ -39,8 +38,7 @@ public class SuppressionProducteur extends HttpServlet {
     private ProducteurDao       producteurDao;
     private UtilisateurDao      utilisateurDao;
 
-    private String              succes;
-    private String              echec;
+    private String              successDel;
     private Map<String, String> erreurs              = new HashMap<String, String>();
 
     public void init() throws ServletException {
@@ -64,20 +62,19 @@ public class SuppressionProducteur extends HttpServlet {
                     producteurDao.supprimer( id );
                 } catch ( DAOException e ) {
                     e.printStackTrace();
-                    erreurs.put( CHAMP_ERREUR_DEL, e.getMessage() );
+                    erreurs.put( CHAMP_ERREUR_DAO, e.getMessage() );
+                    erreurs.put( CHAMP_ECHEC_DEL, nomProducteur );
                 }
             }
 
             if ( erreurs.isEmpty() ) {
-                succes = "Le viticulteur " + nomProducteur + " est supprimé.";
-                request.setAttribute( ATT_SUCCES, succes );
+                successDel = nomProducteur;
+                request.setAttribute( ATT_SUCCES_DEL, successDel );
                 Long id_sessionUtilisateur = sessionUtilisateur.getId();
                 Utilisateur sessionUtilisateurMAJ = utilisateurDao.trouver( id_sessionUtilisateur );
                 session.setAttribute( ATT_SESSION_USER, sessionUtilisateurMAJ );
 
             } else {
-                echec = "Le viticulteur " + nomProducteur + " n'est pas été supprimé.";
-                request.setAttribute( ATT_ECHEC, echec );
                 request.setAttribute( ATT_ERREURS, erreurs );
 
             }

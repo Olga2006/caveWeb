@@ -56,41 +56,9 @@ public class ListeCaves extends HttpServlet {
                 this.getServletContext().getRequestDispatcher( VUE ).forward( request, response );
             }
 
-            /*
-             * List<Cave> caves = null; caves = caveDao.listerPourUtilisateur(
-             * sessionUtilisateur.getId() ); session.setAttribute(
-             * ATT_SESSION_CAVES, caves );
-             */
-            /*
-             * String derniereConnexion = getCookieValue( request,
-             * COOKIE_DERNIERE_CONNEXION ); if ( derniereConnexion != null ) {
-             * DateTime dtCourante = new DateTime(); DateTimeFormatter formatter
-             * = DateTimeFormat.forPattern( FORMAT_DATE ); DateTime
-             * dtDerniereConnexion = formatter.parseDateTime( derniereConnexion
-             * ); Period periode = new Period( dtDerniereConnexion, dtCourante
-             * ); PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
-             * .appendYears().appendSuffix( " an ", " ans " )
-             * .appendMonths().appendSuffix( " mois " )
-             * .appendDays().appendSuffix( " jour ", " jours " )
-             * .appendHours().appendSuffix( " heure ", " heures " )
-             * .appendMinutes().appendSuffix( " minute ", " minutes " )
-             * .appendSeparator( "et " ) .appendSeconds().appendSuffix(
-             * " seconde", " secondes" ) .toFormatter(); String
-             * intervalleConnexions = periodFormatter.print( periode );
-             * request.setAttribute( ATT_INTERVALLE_CONNEXIONS,
-             * intervalleConnexions ); request.setAttribute(
-             * ATT_DERNIERE_CONNEXION, derniereConnexion ); }
-             */
-
         } else
 
             this.getServletContext().getRequestDispatcher( ACCES_CONNEXION ).forward( request, response );
     }
 
-    /*
-     * private static String getCookieValue( HttpServletRequest request, String
-     * nom ) { Cookie[] cookies = request.getCookies(); if ( cookies != null ) {
-     * for ( Cookie cookie : cookies ) { if ( cookie != null && nom.equals(
-     * cookie.getName() ) ) { return cookie.getValue(); } } } return null; }
-     */
 }

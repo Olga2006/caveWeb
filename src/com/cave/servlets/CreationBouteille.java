@@ -1,6 +1,7 @@
 package com.cave.servlets;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -43,6 +44,7 @@ public class CreationBouteille extends HttpServlet {
     public static final String  PARAM_TAB            = "tab";
 
     public static final String  ATT_TAB              = "tab";
+    private static final String ATT_BOUTEILLES       = "bouteilles";
     public static final String  ATT_BOUTEILLE        = "bouteille";
     public static final String  ATT_PRODUCTER        = "producteur";
     public static final String  ATT_FORM             = "form";
@@ -59,7 +61,6 @@ public class CreationBouteille extends HttpServlet {
 
     public static final String  CONF_DAO_FACTORY     = "daofactory";
 
-    private String              succes;
     private String              erreurAjout;
 
     private Bouteille           bouteille;
@@ -93,6 +94,8 @@ public class CreationBouteille extends HttpServlet {
                 producteur = producteurDao.trouver( idProd );
                 request.setAttribute( ATT_BOUTEILLE, bouteille );
                 request.setAttribute( ATT_PRODUCTER, producteur );
+                List<Bouteille> bouteilles = sessionUtilisateur.getBouteilles();
+                request.setAttribute( ATT_BOUTEILLES, bouteilles );
                 this.getServletContext().getRequestDispatcher( VUE_FORM ).forward( request, response );
 
             }
@@ -129,8 +132,6 @@ public class CreationBouteille extends HttpServlet {
                 bouteille = form.creerBouteillePourUtilisateur( request, sessionUtilisateur, chemin );
             }
             if ( form.getErreurs().isEmpty() ) {
-                succes = form.getResultat();
-                request.setAttribute( ATT_SUCCES, succes );
 
                 if ( idPosition != null ) {
                     Long id_position = Long.parseLong( idPosition );
@@ -139,7 +140,7 @@ public class CreationBouteille extends HttpServlet {
                         session.setAttribute( ATT_ID_POSITION, id_position );
                     } catch ( DAOException e ) {
                         e.printStackTrace();
-                        erreurAjout = "La bouteille " + bouteille.getNom() + " n'était pas mis dans la cave. "
+                        erreurAjout = "La bouteille " + bouteille.getNom() + " n’a pas été mise dans la cave."
                                 + e.getMessage();
                         request.setAttribute( CHAMP_ERREUR_AJOT, erreurAjout );
                     }
@@ -151,12 +152,17 @@ public class CreationBouteille extends HttpServlet {
                     Long id_sessionUtilisateur = sessionUtilisateur.getId();
                     Utilisateur sessionUtilisateurMAJ = utilisateurDao.trouver( id_sessionUtilisateur );
                     session.setAttribute( ATT_SESSION_USER, sessionUtilisateurMAJ );
-                    response.sendRedirect( request.getContextPath() + VUE_SUCCES );
+                    List<Bouteille> bouteilles = sessionUtilisateurMAJ.getBouteilles();
+                    request.setAttribute( ATT_BOUTEILLES, bouteilles );
+                    request.setAttribute( ATT_FORM, form );
+                    this.getServletContext().getRequestDispatcher( VUE_FORM ).forward( request, response );
                 }
 
             } else {
                 request.setAttribute( ATT_PRODUCTER, bouteille.getProducteur() );
                 request.setAttribute( ATT_BOUTEILLE, bouteille );
+                List<Bouteille> bouteilles = sessionUtilisateur.getBouteilles();
+                request.setAttribute( ATT_BOUTEILLES, bouteilles );
                 request.setAttribute( ATT_FORM, form );
                 if ( idPosition != null ) {
                     this.getServletContext().getRequestDispatcher( VUE_FORM_REDACTEUR ).forward( request,

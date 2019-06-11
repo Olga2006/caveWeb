@@ -12,7 +12,6 @@ import java.util.List;
 
 import com.cave.beans.Cave;
 import com.cave.beans.Compartiment;
-import com.cave.beans.Utilisateur;
 
 public class CaveDaoImpl implements CaveDao {
 
@@ -28,42 +27,12 @@ public class CaveDaoImpl implements CaveDao {
 
     private static final String SQL_UPDATE                             = "UPDATE Cave SET nom = ? WHERE id = ? ";
 
-    private static final String MESSAGE_DAO                            = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique ";
+    private static final String MESSAGE_DAO                            = " ";
 
     private static DAOFactory   daoFactory;
 
     public CaveDaoImpl( DAOFactory daoFactory ) {
         this.daoFactory = daoFactory;
-    }
-
-    @Override
-    public Cave trouverParNomEtUtilisateur( String nom, Utilisateur sessionUtilisateur ) {
-        Connection connexion = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        Cave cave = null;
-        try {
-            /* Récupération d'une connexion depuis la Factory */
-            connexion = daoFactory.getConnection();
-            preparedStatement = initialisationRequetePreparee( connexion, SQL_SELECT_PAR_NOM_ET_UTILISATEUR, false, nom,
-                    sessionUtilisateur.getId() );
-            resultSet = preparedStatement.executeQuery();
-            /*
-             * Parcours de la ligne de données de l'éventuel ResulSet retourné
-             */
-            if ( resultSet.next() ) {
-                cave = new Cave();
-                Long id_cave = resultSet.getLong( "id" );
-                cave.setId( id_cave );
-                cave.setNom( nom );
-            }
-        } catch ( SQLException e ) {
-            throw new DAOException( MESSAGE_DAO + e );
-        } finally {
-            fermeturesSilencieuses( resultSet, preparedStatement, connexion );
-        }
-
-        return cave;
     }
 
     @Override
@@ -122,6 +91,41 @@ public class CaveDaoImpl implements CaveDao {
         return trouver( SQL_SELECT_PAR_ID, id_cave );
     }
 
+    /*
+     * @Override public Cave trouver( Cave cave ) throws DAOException { return
+     * trouver( SQL_SELECT_PAR_NOM_ET_UTILISATEUR,
+     * cave.getUtilisateur().getId(), cave.getNom() ); }
+     */
+
+    @Override
+    public Cave trouver( Cave cave ) {
+        Connection connexion = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Cave caveDansList = null;
+        try {
+            /* Récupération d'une connexion depuis la Factory */
+            connexion = daoFactory.getConnection();
+            preparedStatement = initialisationRequetePreparee( connexion, SQL_SELECT_PAR_NOM_ET_UTILISATEUR, false, cave.getNom(), cave.getUtilisateur().getId() );
+            resultSet = preparedStatement.executeQuery();
+            /*
+             * Parcours de la ligne de données de l'éventuel ResulSet retourné
+             */
+            if ( resultSet.next() ) {
+                caveDansList = new Cave();
+                Long id_cave = resultSet.getLong( "id" );
+                caveDansList.setId( id_cave );
+                caveDansList.setNom( cave.getNom() );
+            }
+        } catch ( SQLException e ) {
+            throw new DAOException( MESSAGE_DAO + e );
+        } finally {
+            fermeturesSilencieuses( resultSet, preparedStatement, connexion );
+        }
+
+        return caveDansList;
+    }
+
     @Override
     public List<Long> listerIdCavesPourUtilisateur( Long id_sessionUtilisateur ) throws DAOException {
         Connection connexion = null;
@@ -160,10 +164,11 @@ public class CaveDaoImpl implements CaveDao {
             preparedStatement = initialisationRequetePreparee( connexion, SQL_DELETE_PAR_ID, false,
                     id_cave );
             int statut = preparedStatement.executeUpdate();
-            /* Analyse du statut retourné par la requête d'insertion */
-            if ( statut == 0 ) {
-                throw new DAOException( MESSAGE_DAO );
-            }
+
+            /*
+             * if ( statut == 0 ) { throw new DAOException( MESSAGE_DAO ); }
+             * else { id_cave = null; }
+             */
 
         } catch ( SQLException e ) {
             throw new DAOException( MESSAGE_DAO + e );

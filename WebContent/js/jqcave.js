@@ -1,3 +1,128 @@
+(function ($) {
+    // Detect touch support
+    $.support.touch = 'ontouchend' in document;
+    // Ignore browsers without touch support
+    if (!$.support.touch) {
+    return;
+    }
+    var mouseProto = $.ui.mouse.prototype,
+        _mouseInit = mouseProto._mouseInit,
+        touchHandled;
+
+    function simulateMouseEvent (event, simulatedType) { //use this function to simulate mouse event
+    // Ignore multi-touch events
+        if (event.originalEvent.touches.length > 1) {
+        return;
+        }
+    event.preventDefault(); //use this to prevent scrolling during ui use
+
+    var touch = event.originalEvent.changedTouches[0],
+        simulatedEvent = document.createEvent('MouseEvents');
+    // Initialize the simulated mouse event using the touch event's coordinates
+    simulatedEvent.initMouseEvent(
+        simulatedType,    // type
+        true,             // bubbles                    
+        true,             // cancelable                 
+        window,           // view                       
+        1,                // detail                     
+        touch.screenX,    // screenX                    
+        touch.screenY,    // screenY                    
+        touch.clientX,    // clientX                    
+        touch.clientY,    // clientY                    
+        false,            // ctrlKey                    
+        false,            // altKey                     
+        false,            // shiftKey                   
+        false,            // metaKey                    
+        0,                // button                     
+        null              // relatedTarget              
+        );
+
+    // Dispatch the simulated event to the target element
+    event.target.dispatchEvent(simulatedEvent);
+    }
+    mouseProto._touchStart = function (event) {
+    var self = this;
+    // Ignore the event if another widget is already being handled
+    if (touchHandled || !self._mouseCapture(event.originalEvent.changedTouches[0])) {
+        return;
+        }
+    // Set the flag to prevent other widgets from inheriting the touch event
+    touchHandled = true;
+    // Track movement to determine if interaction was a click
+    self._touchMoved = false;
+    // Simulate the mouseover event
+    simulateMouseEvent(event, 'mouseover');
+    // Simulate the mousemove event
+    simulateMouseEvent(event, 'mousemove');
+    // Simulate the mousedown event
+    simulateMouseEvent(event, 'mousedown');
+    };
+
+    mouseProto._touchMove = function (event) {
+    // Ignore event if not handled
+    if (!touchHandled) {
+        return;
+        }
+    // Interaction was not a click
+    this._touchMoved = true;
+    // Simulate the mousemove event
+    simulateMouseEvent(event, 'mousemove');
+    };
+    mouseProto._touchEnd = function (event) {
+    // Ignore event if not handled
+    if (!touchHandled) {
+        return;
+    }
+    // Simulate the mouseup event
+    simulateMouseEvent(event, 'mouseup');
+    // Simulate the mouseout event
+    simulateMouseEvent(event, 'mouseout');
+    // If the touch interaction did not move, it should trigger a click
+    if (!this._touchMoved) {
+      // Simulate the click event
+      simulateMouseEvent(event, 'click');
+    }
+    // Unset the flag to allow other widgets to inherit the touch event
+    touchHandled = false;
+    };
+    mouseProto._mouseInit = function () {
+    var self = this;
+    // Delegate the touch handlers to the widget's element
+    self.element
+        .on('touchstart', $.proxy(self, '_touchStart'))
+        .on('touchmove', $.proxy(self, '_touchMove'))
+        .on('touchend', $.proxy(self, '_touchEnd'));
+
+    // Call the original $.ui.mouse init method
+    _mouseInit.call(self);
+    };
+})(jQuery);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function openTabA() {
 	$("#mainTabA").attr("class", "tabactive");
 	$("#mainTabB").attr("class", "tabpassive");
@@ -47,411 +172,571 @@ function drop(ev) {
 			+ dataBouteille + "&tab=" + dataRow);
 
 }
-$(document).ready(
-		function() {
+$(document)
+		.ready(
+				function() {
+					
+					
+					/*
+					 * -------------------CHANGER LANGUE !!!!! Ne Marche pas----------------------------------
+					 */			
+					var locationhref = window.location.href;					
+					$(".imglanguage").click(
+							function() {
+								var language = $(this).attr("data-language");							
+								$("#languagechoise").text( language);								
+								location.replace("changerLanguage?language=" + language + "&locationhref=" + locationhref);							
+							});
 
-			/*
-			 * -------------------REDACTEUR
-			 * CAVE----------------------------------
-			 */
-			$(".tabpassive").click(function() {
+					/*
+					 * -------------------REDACTEUR
+					 * CAVE----------------------------------
+					 */
 
-$("#bodyredacteurcave").click(function () {
-				if ($('#divmettrebouteilleform').is(':visible')) {
+					$(".tabpassive")
+							.click(
+									function() {
+
+										var tabpassivevalue = $(this).attr(
+												"data-name");
+										var tabactivevalue = $(this).siblings(
+												".tabactive").attr("data-name");
+										$(this).attr("class", "tabactive");
+										$(this).siblings(".tabactive").attr(
+												"class", "tabpassive");
+										$("div#" + tabpassivevalue).show();
+										$("div#" + tabactivevalue).hide();
+									});
+
+					$(".tabactive").click(
+							function() {
+								var tabactivevalue = $(this).attr("data-name");
+								var tabpassivevalue = $(this).siblings().attr(
+										"data-name");
+								$(this).attr("class", "tabactive");
+								$(this).siblings().attr("class", "tabpassive");
+								$("div#" + tabactivevalue).show();
+								$("div#" + tabpassivevalue).hide();
+							});
+
+					/*
+					 * transmition data bouteilleid et placeid pour les
+					 * formulaires et animation place dans la cave pendant le
+					 * chois de bouteille
+					 */
+
+					$(".afichecontenu")
+							.click(
+									function() {
+										$(this).css({
+											"border-width" : "5"
+										});
+										$("#divmettrebouteilleform").show();
+										$("#coverforformulaire").show();
+										/*$("#pagecover").show();*/
+										var data = $(this).attr("id")
+												.split(" ");
+										var dataId = data[0];
+										var dataRow = data[1];
+										var dataCaveRef = data[2];
+										var dataPozRef = data[3];
+										var dataIdBouteille = data[4];
+										if (dataIdBouteille != 0) {
+											$("#sortirBouteille").show();
+										} else if (dataIdBouteille == 0) {
+											$("#sortirBouteille").hide();
+										}
+
+										var idBouteilleDansList = $("#ancre"
+												+ dataIdBouteille);
+										var idPrevBouteilleDansList = idBouteilleDansList
+												.prev().attr("id");
+										if (idPrevBouteilleDansList != 'filterBouteille') {
+											self.location.href = "#"
+													+ idPrevBouteilleDansList;
+										}
+
+										$("#ancre" + dataIdBouteille).css({
+											"border-width" : "5"
+										});
+										$("#afichageRefPoz").text(
+												" " + dataCaveRef + dataPozRef);
+										$("#sortirBouteille").attr(
+												"href",
+												"ajouterBouteille?idPosition="
+														+ dataId + "&tab="
+														+ dataRow);
+
+										$(".txtrefbouteillPourMettreDansCave")
+												.click(
+														function() {
+															var dataBouteille = $(
+																	this).attr(
+																	"id");
+															$(this)
+																	.attr(
+																			"href",
+																			"ajouterBouteille?idPosition="
+																					+ dataId
+																					+ "&tab="
+																					+ dataRow
+																					+ "&idBouteille="
+																					+ dataBouteille);
+														});
+										/*
+										 * *************************creation
+										 * bouteille depuis
+										 * redacteur**************
+										 */
+										$("#linkajouterelementred")
+												.click(
+														function() {
+															$(
+																	"#divdisapppourtriggerupdatesansrecharger")
+																	.show();
+															if ($(
+																	'#divdisapppourtriggerupdatesansrecharger')
+																	.is(
+																			':visible')) {
+																$("input#nomP")
+																		.attr(
+																				'required',
+																				false);
+															}
+															$(
+																	"#formCreationBouteille")
+																	.attr(
+																			"action",
+																			"creationBouteille?idPosition="
+																					+ dataId
+																					+ "&tab="
+																					+ dataRow);
+														});
+
+									});
+
+					var aficherRangee = $("#aficherRangee").attr("id");
+					if (aficherRangee != null) {
+						$("#aficherRangee").parent(".rangee").prev().attr("id",
+								"ancreRangee");
+						self.location.href = "#ancreRangee";
+					}
+
+					/*
+					 * function distanger_bouteille(animationContenu) {
+					 * animationContenu.css({"border-color": "#c9f7b7",
+					 * "border-width": "5px", " border-style": "double"}); }
+					 */
+					/*
+					 * function animate_loop(animationContenu) {
+					 * animationContenu.animate({ opacity : 0.4 }, 1000,
+					 * function() { animationContenu.animate({ opacity : 1 },
+					 * 1000) animate_loop(animationContenu); }); }
+					 */
+
+					/* animate_sortir_form($("#linksortirformmettrebouteille")); */
+					/* animate_loop($("#aficher")); */
+
+					/*
+					 * -------------------------------description bouteille dans
+					 * le redacteur cave----------------------------------------
+					 */
+					$(".detect").mouseenter(function() {
+						$(this).find(".descrcotenubouteille").show();
+					});
+					$(".detect").mouseleave(function() {
+						$(this).find(".descrcotenubouteille").hide();
+					});
+
+					/*
+					 * -------------------------------example
+					 * compartiment----------------------------------------
+					 */
+
+					$(".infobulle").mouseenter(function() {
+						$(this).find("#example").show();
+					});
+
+					$(".infobulle").mouseleave(function() {
+						$(this).find("#example").hide();
+					});
+
+					/*
+					 * -------------------------------FORMULAIRE
+					 * COMMUNE----------------------------------------
+					 */
+					/*
+					 * -------------------------------disapp
+					 * resultat----------------------------------------
+					 */
+
+					/*
+					 * -------------------------------show plus
+					 * info----------------------------------------
+					 */
+					$(".divimgexpand").click(
+							function() {
+								$(this).siblings(".sousblockoneitemclosed")
+										.slideDown();
+								$(this).siblings(".divblog").css({
+									"height" : "auto"
+								});
+								$(this).hide();
+								$(this).siblings(".divimgreduce").show();
+							});
+					
+					$(".divimgexpandsansgradient").click(
+							function() {
+								$(this).siblings(".sousblockoneitemclosed")
+										.slideDown();
+								$(this).siblings(".divblog").css({
+									"height" : "auto"
+								});
+								$(this).hide();
+								$(this).siblings(".divimgreduce").show();
+							});
+					
+					
+					$(".divimgreduce").click(function() {
+						$(this).siblings(".sousblockoneitemclosed").slideUp();
+						$(this).siblings(".divblog").css({
+							"height" : "150px"
+						});
+						$(this).hide();
+						$(this).siblings(".divimgexpand").show();
+						$(this).siblings(".divimgexpandsansgradient").show();
+					});
+
+					$(".descriptmainnom").click(
+							function() {
+								$(this).parentsUntil("blockoneitem").siblings(
+										".sousblockoneitemclosed").slideToggle(
+										"slow");
+							});
+					
+					/* -------------------------------Delete---------------------------------------- */
+
+					$(".imgajouterinfoproducteurdel").click(
+							function() {
+								$("#divdisapppourtriggerdel").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdProd = data[0];
+								var dataNomProd = data[1];
+								$("#formDel").attr(
+										"action",
+										"suppressionProducteur?idProducteur="
+												+ dataIdProd
+												+ "&nomProducteur="
+												+ dataNomProd);								
+									$("#coverforformulaire").show();
+							});
+
+					$(".imgajouterinfocavedel").click(
+							function() {
+								$("#divdisapppourtriggerdel").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdCave = data[0];
+								var dataNomCave = data[1];
+								$("#formDel").attr(
+										"action",
+										"suppressionCave?idCave=" + dataIdCave
+												+ "&nomCave=" + dataNomCave);
+								$("#coverforformulaire").show();
+							});
+
+					$(".imgajouterinfobouteilledel").click(
+							function() {
+								$("#divdisapppourtriggerdel").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdBouteille = data[0];
+								var dataNomBouteille = data[1];
+								$("#formDel").attr(
+										"action",
+										"suppressionBouteille?idBouteille="
+												+ dataIdBouteille
+												+ "&nomBouteille="
+												+ dataNomBouteille);
+								$("#coverforformulaire").show();
+							});
+
+					/*
+					 * -------------------------------Changer quantité dans la
+					 * liste de courses----------------------------------------
+					 */
+
+					$(".imgajouterinfobouteilleshoplist").click(
+							function() {
+								$("#divdisapppourtriggeraddshoplist").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdBouteille = data[0];
+								var dataNomBouteille = data[1];
+								var nbrlc = $(this).attr('data-nbr');
+								$("#quantiteAcheter").val(nbrlc);
+								$("#nombouteillepourquantiteacheter").text(
+										dataNomBouteille);
+								$("#formLC").attr(
+										"action",
+										"ajouterDansLC?idBouteille="
+												+ dataIdBouteille
+												+ "&nomBouteille="
+												+ dataNomBouteille);
+								$("#coverforformulaire").show();
+							});
+
+					$(".imgajouterinfobouteilleshoplistfromlc").click(
+							function() {
+								$("#divdisapppourtriggeraddshoplist").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdBouteille = data[0];
+								var dataNomBouteille = data[1];
+								var nbrlc = $(this).attr('data-nbr');
+								$("#quantiteAcheter").val(nbrlc);
+								$("#nombouteillepourquantiteacheter").text(
+										dataNomBouteille);
+								$("#formLC").attr(
+										"action",
+										"ajouterDansLC?idBouteille="
+												+ dataIdBouteille
+												+ "&nomBouteille="
+												+ dataNomBouteille
+												+ "&isShopList=isShopList");
+								$("#coverforformulaire").show();
+							});
+
+					/*
+					 * -------------------------------Changer raiting
+					 * ----------------------------------------
+					 */
+
+					$(".imgraiting").click(
+							function() {
+								$("#divdisapppourtriggerevaluation").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdBouteille = data[0];
+								var dataNomBouteille = data[1];
+								var eval = $(this).attr("alt");
+								$("#evaluation").val(eval);
+								$("#nombouteillepourevaluation").text(
+										dataNomBouteille);
+								$("#formEvaluation").attr(
+										"action",
+										"ajouterEvaluation?idBouteille="
+												+ dataIdBouteille
+												+ "&nomBouteille="
+												+ dataNomBouteille);
+								$("#coverforformulaire").show();
+							});
+					/*
+					 * -------------------------------Changer
+					 * Commentaire----------------------------------------
+					 */
+
+					$(".imgajouterinfobouteilleaddcomment").click(
+							function() {
+								$("#divdisapppourtriggeraddcomment").show();
+								var data = $(this).attr("id").split(" ");
+								var dataIdBouteille = data[0];
+								var dataNomBouteille = data[1];
+								$("#nombouteillepourcomment").text(
+										dataNomBouteille);
+								var commentaire = $(this).attr('data-comment');
+								$("#commentaire").text(commentaire);
+								$("#formLCamment").attr(
+										"action",
+										"ajouterCommentaire?idBouteille="
+												+ dataIdBouteille
+												+ "&nomBouteille="
+												+ dataNomBouteille);
+								$("#coverforformulaire").show();
+							});
+
+					/* -------------------------------Creation---------------------------------------- */
+					$("#linkajouterelement").click(function() {
+						$("#divdisapppourtriggerupdatesansrecharger").show();
+						$("#coverforformulaire").show();
+						if ($('#divdisapppourtriggerupdatesansrecharger').is(':visible')) {
+							$("input#nomP").attr('required', false);
+						}
+					});
+					if ($('#divdisapppourtriggerupdatesansrecharger').is(':visible')) {
+						$("input#nomP").attr('required', false);
+					}
+
+					/*
+					 * -------------------------------Creation
+					 * producteur----------------------------------------
+					 */
+					$("#linkajouterelementprod").click(
+							function() {
+								$("#divdisapppourtriggerupdatesansrecharger").show();
+								$("#coverforformulaire").show();
+									$("input#nomP").attr('required', true);								
+							});
+					if ($('#divdisapppourtriggerupdateprod').is(':visible')) {
+						$("input#nomP").attr('required', true);
+					}
+
+					if ($('#divdisapppourtriggerupdatebouteille').is(':visible')) {
+						$("input#nomP").attr('required', false);
+					}
+					/*
+					 * -------------------------------sortir form sans
+					 * rechargement----------------------------------------
+					 */
+			/*		if ($('#divdisapppourtriggerdel').is(':visible')) {
+						 var fornulairecover = "<div class='coverforformulaire'></div>";
+						$("body").append(fornulairecover);
+					}*/
+					
+					
+					$(".sortirformsansrechargement").click(
+							function() {
+								$("#divdisapppourtriggerdel").hide();
+								$("#divdisapppourtriggeraddcomment").hide();
+								$("#divdisapppourtriggeraddshoplist").hide();
+								$("#divdisapppourtriggerevaluation").hide();															
+								$("#divdisapppourtriggerupdatesansrecharger").hide();	
+								$("#coverforformulaire").hide();
+								if ($('#divmettrebouteilleform').is(':visible')) {
+									$("#coverforformulaire").show();
+								}
+							});
+					
+					$("#sortirformsansrechargementmettrebouteille").click(
+							function() {
+								$("#divmettrebouteilleform").hide();
+								$("#coverforformulaire").hide();
+								$(".afichecontenu").css({
+									"border-width" : "0"
+								});
+								$(".ciblebouteille").css({
+									"border-width" : "0"
+								});	
+							});
 					
 
 
-						$("#divmettrebouteilleform").hide();
-						$(".afichecontenu").css({
-							"border-width": "0"
-						});
-						$(".ciblebouteille").css({
-							"border-width": "0"
-						});
-}
-					});
-
-				
+					
+					
+					
+					
 
 
+					var modalprodavecrechargement = document.getElementById("divdisapppourtriggerupdateprod");
+					var modalcaveavecrechargement = document.getElementById("divdisapppourtriggerupdatecave");
+					var modalbouteilleavecrechargement = document.getElementById("divdisapppourtriggerupdatebouteille");
+					
+					var modal = document.getElementById("divdisapppourtriggerupdatesansrecharger");
+					var modalmettrebouteille = document.getElementById("divmettrebouteilleform");
+					var modaldel = document.getElementById("divdisapppourtriggerdel");					
+					var modalcomment = document.getElementById("divdisapppourtriggeraddcomment");
+					var modalsl = document.getElementById("divdisapppourtriggeraddshoplist");
+					var modalevaluation = document.getElementById("divdisapppourtriggerevaluation");
+					
+					window.onclick = function(event) {
 
-
-				var tabpassivevalue = $(this).attr("data-name");
-				var tabactivevalue = $(this).siblings(".tabactive").attr("data-name");
-				$(this).attr("class", "tabactive");
-				$(this).siblings(".tabactive").attr("class", "tabpassive");
-				$("div#" + tabpassivevalue).show();
-				$("div#" + tabactivevalue).hide();
-			});
-
-			$(".tabactive").click(function() {
-				var tabactivevalue = $(this).attr("data-name");
-				var tabpassivevalue = $(this).siblings().attr("data-name");
-				$(this).attr("class", "tabactive");
-				$(this).siblings().attr("class", "tabpassive");
-				$("div#" + tabactivevalue).show();
-				$("div#" + tabpassivevalue).hide();
-			});
-
-			/*
-			 * transmition data bouteilleid et placeid pour les formulaires et
-			 * animation place dans la cave pendant le chois de bouteille
-			 */
-
-			$(".afichecontenu").click(
-					function() {
-						$(this).css({
-							"border-width" : "5"
-						});
-						$("#divmettrebouteilleform").show();
-						var data = $(this).attr("id").split(" ");
-						var dataId = data[0];
-						var dataRow = data[1];
-						var dataCaveRef = data[2];
-						var dataPozRef = data[3];
-						var dataIdBouteille = data[4];
-						if (dataIdBouteille != 0) {
-							$("#sortirBouteille").show();
-						} else if (dataIdBouteille == 0) {
-							$("#sortirBouteille").hide();
+					  if (event.target == modal) {
+						  modal.style.display = "none";
+					
+								$("#coverforformulaire").hide();
+							
+					  }
+					  if (event.target == modalcomment) {
+						  modalcomment.style.display = "none";
+						  $("#coverforformulaire").hide();						  
+						  }
+					  if ($('#divmettrebouteilleform').is(':visible')) {
+							$("#coverforformulaire").show();
 						}
-						
-						var idBouteilleDansList = $("#ancre" + dataIdBouteille);
-						var idPrevBouteilleDansList = idBouteilleDansList.prev().attr("id");
-							if (idPrevBouteilleDansList!='filterBouteille') {
-								self.location.href = "#" + idPrevBouteilleDansList;
-							}
+					  if (event.target == modalevaluation) {
+						  modalevaluation.style.display = "none";
+						  $("#coverforformulaire").hide();
+						  }
+					  if (event.target == modalsl) {
+						  modalsl.style.display = "none";
+						  $("#coverforformulaire").hide();
+						  }
+					  if (event.target == modaldel) {
+						  modaldel.style.display = "none";
+						  $("#coverforformulaire").hide();
+						  }
+					  if (event.target == modalmettrebouteille) {
+						  modalmettrebouteille.style.display = "none";
+						  $("#coverforformulaire").hide();
+						  $(".afichecontenu").css("border-width","0");	
+						  $(".ciblebouteille").css({
+								"border-width" : "0"
+							});	
+						  }
+					  
+					  if (event.target == modalprodavecrechargement) {
+						  location.replace("listeProducteurs");
+						  }
+					  if (event.target == modalcaveavecrechargement) {
+						  location.replace("listeCaves");
+						  }
+					  if (event.target == modalbouteilleavecrechargement) {
+						  location.replace("listeBouteilles");
+						  }
+					}			
+					
+					
+					
+					
+					
+					
+					
+					
 
-						$("#ancre" + dataIdBouteille).css({
-							"border-width" : "5"
-						});
-						$("#afichageRefPoz").text(
-								"Veuillez choisir une option pour "
-										+ dataCaveRef + dataPozRef);
-						$("#sortirBouteille").attr(
-								"href",
-								"ajouterBouteille?idPosition=" + dataId
-										+ "&tab=" + dataRow);
+					
 
-						$(".txtrefbouteillPourMettreDansCave").click(
-								function() {
-									var dataBouteille = $(this).attr("id");
-									$(this).attr(
-											"href",
-											"ajouterBouteille?idPosition="
-													+ dataId + "&tab="
-													+ dataRow + "&idBouteille="
-													+ dataBouteille);
-								});
-
-						$("#linkajouterelement").click(
-								function() {
-									$("#divcreerbouteilleform").show();
-									$("#formCreationBouteille").attr(
-											"action",
-											"creationBouteille?idPosition="
-													+ dataId + "&tab="
-													+ dataRow);
-								});
-
-
-					});
-			
-			var aficherRangee = $("#aficherRangee").attr("id");
-			if (aficherRangee!=null) {
-				$("#aficherRangee").parent(".rangee").prev().attr("id","ancreRangee");
-				self.location.href = "#ancreRangee";
-			}
-			
-
-			/*
-			 * function distanger_bouteille(animationContenu) {
-			 * animationContenu.css({"border-color": "#c9f7b7", "border-width":
-			 * "5px", " border-style": "double"}); }
-			 */
-			/*
-			 * function animate_loop(animationContenu) {
-			 * animationContenu.animate({ opacity : 0.4 }, 1000, function() {
-			 * animationContenu.animate({ opacity : 1 }, 1000)
-			 * animate_loop(animationContenu); }); }
-			 */
-
-			/* animate_sortir_form($("#linksortirformmettrebouteille")); */
-			/* animate_loop($("#aficher")); */
-
-			/*
-			 * -------------------------------description bouteille dans le
-			 * redacteur cave----------------------------------------
-			 */
-			$(".detect").mouseenter(function() {
-				$(this).find(".descrcotenubouteille").show();
-			});
-			$(".detect").mouseleave(function() {
-				$(this).find(".descrcotenubouteille").hide();
-			});
-
-			/*
-			 * -------------------------------example
-			 * compartiment----------------------------------------
-			 */
-
-			$(".infobulle").mouseenter(function() {
-				$(this).find("#example").show();
-			});
-
-			$(".infobulle").mouseleave(function() {
-				$(this).find("#example").hide();
-			});
-
-			/*
-			 * -------------------------------FORMULAIRE
-			 * COMMUNE----------------------------------------
-			 */
-			/*
-			 * -------------------------------disapp
-			 * resultat----------------------------------------
-			 */
-
-			/*
-			 * -------------------------------show plus
-			 * info----------------------------------------
-			 */
-			$(".imgexpand").click(
-					function() {
-						$(this).parentsUntil("blockoneitem").siblings(
-								".sousblockoneitemclosed").slideToggle("slow");
+					/*
+					 * ****************************Mote de passe
+					 * oublié**********************************
+					 */
+					$(".tabmdpoblie").click(function() {
+						$(".divdisapppourtriggerevaluation").show();
 					});
 
-			$(".descriptmainnom").click(
-					function() {
-						$(this).parentsUntil("blockoneitem").siblings(
-								".sousblockoneitemclosed").slideToggle("slow");
-					});
+					/*
+					 * **********************filter de list des
+					 * bouteilles************************************************
+					 */
 
-			/* -------------------------------Delete---------------------------------------- */
+					$("#filterBouteille")
+							.keyup(
+									function() {
+										var value = $(this).val().toLowerCase();
+										$(".ciblebouteille")
+												.filter(
+														function() {
+															$(this)
+																	.toggle(
+																			$(
+																					this)
+																					.text()
+																					.toLowerCase()
+																					.indexOf(
+																							value) > -1)
+														});
+									});
 
-			$(".imgajouterinfoproducteurdel").click(
-					function() {
-						$("#divdisapppourtriggerdel").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdProd = data[0];
-						var dataNomProd = data[1];
-						$("#formDel").attr(
-								"action",
-								"suppressionProducteur?idProducteur="
-										+ dataIdProd + "&nomProducteur="
-										+ dataNomProd);
-					});
-
-			$(".imgajouterinfocavedel").click(
-					function() {
-						$("#divdisapppourtriggerdel").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdCave = data[0];
-						var dataNomCave = data[1];
-						$("#formDel").attr(
-								"action",
-								"suppressionCave?idCave=" + dataIdCave
-										+ "&nomCave=" + dataNomCave);
-					});
-
-			$(".imgajouterinfobouteilledel").click(
-					function() {
-						$("#divdisapppourtriggerdel").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdBouteille = data[0];
-						var dataNomBouteille = data[1];
-						$("#formDel").attr(
-								"action",
-								"suppressionBouteille?idBouteille="
-										+ dataIdBouteille + "&nomBouteille="
-										+ dataNomBouteille);
-					});
-
-			/*
-			 * -------------------------------Changer quantité dans la liste de
-			 * courses----------------------------------------
-			 */
-
-			$(".imgajouterinfobouteilleshoplist").click(
-					function() {
-						$("#divdisapppourtriggeraddshoplist").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdBouteille = data[0];
-						var dataNomBouteille = data[1];
-						var nbrlc = $(this).prev(".descriptrestlc").text();
-						$("#quantiteAcheter").val(nbrlc);
-						$("#formLC").attr(
-								"action",
-								"ajouterDansLC?idBouteille=" + dataIdBouteille
-										+ "&nomBouteille=" + dataNomBouteille);
-					});
-
-			$(".imgajouterinfobouteilleshoplistfromlc").click(
-					function() {
-						$("#divdisapppourtriggeraddshoplist").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdBouteille = data[0];
-						var dataNomBouteille = data[1];
-						var nbrlc = $(this).prev(".descriptrestlc").text();
-						$("#quantiteAcheter").val(nbrlc);
-						$("#formLC").attr(
-								"action",
-								"ajouterDansLC?idBouteille=" + dataIdBouteille
-										+ "&nomBouteille=" + dataNomBouteille
-										+ "&isShopList=isShopList");
-					});
-
-			/*
-			 * -------------------------------Changer raiting
-			 * ----------------------------------------
-			 */
-
-			$(".imgraiting").click(
-					function() {
-						$("#divdisapppourtriggerevaluation").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdBouteille = data[0];
-						var dataNomBouteille = data[1];
-						var eval = $(this).attr("alt");
-						$("#evaluation").val(eval);
-						$("#formEvaluation").attr(
-								"action",
-								"ajouterEvaluation?idBouteille="
-										+ dataIdBouteille + "&nomBouteille="
-										+ dataNomBouteille);
-					});
-			/*
-			 * -------------------------------Changer
-			 * Commentaire----------------------------------------
-			 */
-
-			$(".imgajouterinfobouteilleaddcomment").click(
-					function() {
-						$("#divdisapppourtriggeraddcomment").show();
-						var data = $(this).attr("id").split(" ");
-						var dataIdBouteille = data[0];
-						var dataNomBouteille = data[1];
-						var commentaire = $(this).parentsUntil(
-								".ciblebouteille").find(
-								".descriptrestcommentaire").text();
-						$("#commentaire").val(commentaire);
-						$("#formLCamment").attr(
-								"action",
-								"ajouterCommentaire?idBouteille="
-										+ dataIdBouteille + "&nomBouteille="
-										+ dataNomBouteille);
-					});
-
-			/* -------------------------------Creation---------------------------------------- */
-			$("#linkajouterelement").click(function() {
-				$("#divdisapppourtriggerupdate").show();
-			});
-
-			/*
-			 * -------------------------------sortir form sans
-			 * rechargement----------------------------------------
-			 */
-			$("#sortirformsansrechargement").click(function(data, status) {
-				$("#divdisapppourtriggerdel").hide();
-			});
-			$("#sortirformsansrechargementcreerbouteille").click(function() {
-				$("#divdisapppourtriggerupdate").hide();
-			});
-
-
-
-
-
-			$("#sortirformsansrechargement").click(function() {
-				$("#divmettrebouteilleform").hide();
-				$(".afichecontenu").css({
-					"border-width" : "0"
 				});
-				$(".ciblebouteille").css({
-					"border-width" : "0"
-				});
-			});
-
-
-
-
-			/*
-			 * ------------------------ouverture plus info sur
-			 * blog------------------------------------
-			 */
-			$(".divdescrrightbottom").click(
-					function() {
-						$(this).parents(".blockoneitemblog").css("height",
-								"auto", "slow");
-						$(this).parents(".collectionmainblog").hide();
-					});
-			$(".descriptmainnom").click(
-					function() {
-						$(this).parents(".blockoneitemblog").css("height",
-								"170px", "slow");
-						$(this).parentsUntil(".blockoneitemblog").siblings(
-								".collectionmainblog").show();
-					});
-
-			/*
-			 * ****************************Mote de passe
-			 * oublié**********************************
-			 */
-			$(".tabmdpoblie").click(function() {
-				$(".divdisapppourtriggerevaluation").show();
-			});
-
-			/*
-			 * **********************filter de list des
-			 * bouteilles************************************************
-			 */
-
-			$("#filterBouteille").keyup(
-					function() {
-						var value = $(this).val().toLowerCase();
-						$(".ciblebouteille").filter(
-								function() {
-									$(this).toggle(
-											$(this).text().toLowerCase()
-													.indexOf(value) > -1)
-								});
-					});
-
-		});
 /*
  * **********************filter bouteille pour afichage combien anee de la
  * consomation ************************************************
  */
 
 $('#filterBouteilleConsomer').change(function() {
-	var divIdA = $(this).val();
+	var value = $(this).val();
+	window.location = "listeBouteillesAConsomer?maxAnee=" + value;
 
-	switch (divIdA) {
-	case divIdA = "0":
-		$("div.cible1").hide();
-		$("div.cible2").hide();
-		$("div.cible3").hide();
-		break;
-	case divIdA = "1":
-		$("div.cible2").hide();
-		$("div.cible3").hide();
-		break;
-	case divIdA = "2":
-		$("div.cible3").hide();
-		break;
-	case divIdA = "3":
-		$("div.cible0").show();
-		$("div.cible1").show();
-		$("div.cible2").show();
-		$("div.cible3").show();
-		break;
-	default:
-		$("div.cible0").show();
-		$("div.cible1").show();
-		$("div.cible2").show();
-		$("div.cible3").show();
-	}
+});
+
+$('#etibouteille').change(function() {
+	var value = $(this).val();
+
+	window.location = "listeBouteilles?tri=" + value;
 
 });
 
@@ -551,12 +836,22 @@ $('input[name=choixNouveauProducteur]:radio').click(function() {
 	var divId = jQuery(this).val();
 	$("div#" + divId).show();
 
+	if (divId == 'ancienProducteur') {
+		$("input#nomP").attr('required', false);
+	} else {
+		$("input#nomP").attr("required", "required");
+	}
 });
 /* idem avec choix ajouter producteur */
 $('input[name=choixAjouterProducteur]:radio').click(function() {
 	$("div#ajouterProducteur").hide();
 	var divIdA = jQuery(this).val();
 	$("div#" + divIdA).show();
+	if (divIdA == 'nonAjouterProducteur') {
+		$("input#nomP").attr('required', false);
+	} else {
+		$("input#nomP").attr("required", "required");
+	}
 
 });
 

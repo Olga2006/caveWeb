@@ -2,6 +2,7 @@ package com.cave.servlets;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.cave.beans.Bouteille;
 import com.cave.beans.Utilisateur;
 import com.cave.dao.BouteilleDao;
 import com.cave.dao.DAOException;
@@ -23,15 +25,15 @@ public class SuppressionBouteille extends HttpServlet {
     public static final String  VUE_FORM            = "/WEB-INF/jsp/restreint/afficherBouteilles.jsp";
     public static final String  ACCES_CONNEXION     = "/connection";
 
-    private static final String CHAMP_ERREUR_DEL    = "erreurDel";
-
     public static final String  PARAM_ID_BOUTEILLE  = "idBouteille";
     public static final String  PARAM_NOM_BOUTEILLE = "nomBouteille";
     public static final String  PARAM_SESSION_USER  = "sessionUtilisateur";
 
-    public static final String  ATT_SUCCES          = "succes";
-    public static final String  ATT_ECHEC           = "echec";
+    public static final String  ATT_SUCCES_DEL      = "successDel";
     public static final String  ATT_ERREURS         = "erreurs";
+    private static final String ATT_BOUTEILLES      = "bouteilles";
+    private static final String CHAMP_ERREUR_DAO    = "erreurDao";
+    private static final String CHAMP_ECHEC_DEL     = "echecDel";
     public static final String  ATT_SESSION_USER    = "sessionUtilisateur";
 
     public static final String  CONF_DAO_FACTORY    = "daofactory";
@@ -39,8 +41,8 @@ public class SuppressionBouteille extends HttpServlet {
     private BouteilleDao        bouteilleDao;
     private UtilisateurDao      utilisateurDao;
 
-    private String              succes;
-    private String              echec;
+    private String              successDel;
+
     private Map<String, String> erreurs             = new HashMap<String, String>();
 
     public void init() throws ServletException {
@@ -64,20 +66,21 @@ public class SuppressionBouteille extends HttpServlet {
                     bouteilleDao.supprimer( id );
                 } catch ( DAOException e ) {
                     e.printStackTrace();
-                    erreurs.put( CHAMP_ERREUR_DEL, e.getMessage() );
+                    erreurs.put( CHAMP_ERREUR_DAO, e.getMessage() );
+                    erreurs.put( CHAMP_ECHEC_DEL, nomBouteille );
                 }
             }
 
             if ( erreurs.isEmpty() ) {
-                succes = "La bouteille " + nomBouteille + " est supprimée.";
-                request.setAttribute( ATT_SUCCES, succes );
+                successDel = nomBouteille;
+                request.setAttribute( ATT_SUCCES_DEL, successDel );
                 Long id_sessionUtilisateur = sessionUtilisateur.getId();
                 Utilisateur sessionUtilisateurMAJ = utilisateurDao.trouver( id_sessionUtilisateur );
                 session.setAttribute( ATT_SESSION_USER, sessionUtilisateurMAJ );
+                List<Bouteille> bouteilles = sessionUtilisateurMAJ.getBouteilles();
+                request.setAttribute( ATT_BOUTEILLES, bouteilles );
 
             } else {
-                echec = "La bouteille " + nomBouteille + " n'est pas été supprimé.";
-                request.setAttribute( ATT_ECHEC, echec );
                 request.setAttribute( ATT_ERREURS, erreurs );
 
             }

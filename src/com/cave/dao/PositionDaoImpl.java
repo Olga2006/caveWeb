@@ -48,7 +48,7 @@ public class PositionDaoImpl implements PositionDao {
     private static final String SQL_UPDATE_RETIRER_BOUTEILLE          = "UPDATE Position SET  id_bouteille = null WHERE id = ?";
     private static final String SQL_UPDATE_CHANGER_POSITION_BOUTEILLE = "CALL remplacer_bouteille(?,?,?)";
 
-    private static final String MESSAGE_DAO                           = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique ";
+    private static final String MESSAGE_DAO                           = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre <a class=\"linkErrDao\" href=\"support\">service technique </a> ";
 
     private static DAOFactory   daoFactory;
 

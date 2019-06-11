@@ -1,6 +1,7 @@
 package com.cave.beans;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 public class Bouteille implements Serializable {
@@ -475,5 +476,119 @@ public class Bouteille implements Serializable {
     public static long getSerialversionuid() {
         return serialVersionUID;
     }
+
+    public static Comparator<Bouteille> ComparNbrAneeABoir     = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       int nbrAneeABoir0 = bouteille0.getNbrAneeABoir();
+                                                                       int nbrAneeABoir1 = bouteille1.getNbrAneeABoir();
+                                                                       return nbrAneeABoir0 - nbrAneeABoir1;
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparDateDeProduction = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       int dateDeProduction0 = bouteille0.getDateDeProduction();
+                                                                       int dateDeProduction1 = bouteille1.getDateDeProduction();
+                                                                       return dateDeProduction0 - dateDeProduction1;
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparDateGarder       = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       int dateGarder0 = bouteille0.getDateGarder();
+                                                                       int dateGarder1 = bouteille1.getDateGarder();
+                                                                       return dateGarder0 - dateGarder1;
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparTaille           = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       Double taille0 = bouteille0.getTaille();
+                                                                       Double taille1 = bouteille1.getTaille();
+                                                                       return (int) ( taille0 - taille1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparPrixAchat        = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       Double prixAchat0 = bouteille0.getPrixAchat();
+                                                                       Double prixAchat1 = bouteille1.getPrixAchat();
+                                                                       return (int) ( prixAchat0 - prixAchat1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparPrixActuelle     = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       Double prixActuelle0 = bouteille0.getPrixActuelle();
+                                                                       Double prixActuelle1 = bouteille1.getPrixActuelle();
+                                                                       return (int) ( prixActuelle0 - prixActuelle1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparNbrTotal         = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       int nbrTotal0 = bouteille0.getNbrTotal();
+                                                                       int nbrTotal1 = bouteille1.getNbrTotal();
+                                                                       return nbrTotal0 - nbrTotal1;
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparCouleur          = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       String couleur0 = bouteille0.getCouleur().toUpperCase();
+                                                                       String couleur1 = bouteille0.getCouleur().toUpperCase();
+                                                                       // ascending
+                                                                       // order
+                                                                       return couleur0.compareTo( couleur1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparCru              = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       String cru0 = bouteille0.getCru().toUpperCase();
+                                                                       String cru1 = bouteille0.getCru().toUpperCase();
+
+                                                                       return cru0.compareTo( cru1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparPays             = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       String pays0 = bouteille0.getPays().toUpperCase();
+                                                                       String pays1 = bouteille0.getPays().toUpperCase();
+
+                                                                       return pays0.compareTo( pays1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparRegion           = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       String region0 = bouteille0.getRegion().toUpperCase();
+                                                                       String region1 = bouteille0.getRegion().toUpperCase();
+
+                                                                       return region0.compareTo( region1 );
+                                                                   }
+                                                               };
+
+    public static Comparator<Bouteille> ComparAppelation       = new Comparator<Bouteille>() {
+                                                                   @Override
+                                                                   public int compare( Bouteille bouteille0, Bouteille bouteille1 ) {
+                                                                       String appelation0 = bouteille0.getAppelation().toUpperCase();
+                                                                       String appelation1 = bouteille0.getAppelation().toUpperCase();
+
+                                                                       return appelation0.compareTo( appelation1 );
+                                                                   }
+                                                               };
 
 }

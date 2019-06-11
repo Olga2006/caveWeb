@@ -16,7 +16,13 @@ public final class CreationCaveForm {
     private static final String CHAMP_COMPARTIMENT = "nbrCompartiment";
     private static final String CHAMP_ERREUR_DAO   = "erreurDaoCave";
     public static final String  PARAM_ID_CAVE      = "idCave";
-    private String              resultat;
+
+    private String              successCreation;
+    private String              successMaj;
+
+    private String              unsuccessCreation;
+    private String              unsuccessMaj;
+
     private Map<String, String> erreurs            = new HashMap<String, String>();
     CaveDao                     caveDao;
 
@@ -28,8 +34,20 @@ public final class CreationCaveForm {
         return erreurs;
     }
 
-    public String getResultat() {
-        return resultat;
+    public String getSuccessCreation() {
+        return successCreation;
+    }
+
+    public String getSuccessMaj() {
+        return successMaj;
+    }
+
+    public String getUnsuccessCreation() {
+        return unsuccessCreation;
+    }
+
+    public String getUnsuccessMaj() {
+        return unsuccessMaj;
     }
 
     public Cave updateCave( HttpServletRequest request, Utilisateur sessionUtilisateur ) {
@@ -37,127 +55,103 @@ public final class CreationCaveForm {
         String nom = getValeurChamp( request, CHAMP_NOM );
 
         Cave cave = new Cave();
+        cave.setUtilisateur( sessionUtilisateur );
         cave.setId( id );
+        cave.setNom( nom );
 
-        traiterNom( nom, cave, sessionUtilisateur );
+        traiterExistenceCave( cave, id );
 
-        try {
-            if ( erreurs.isEmpty() ) {
+        if ( erreurs.isEmpty() ) {
+            try {
                 caveDao.update( cave );
-                resultat = "Succès mise à jour de la cave " + cave.getNom();
-            } else {
-                if ( cave.getNom() != null ) {
-                    resultat = "Échec mise à jour de la cave " + cave.getNom();
-                } else {
-                    resultat = "Échec mise à jour de la cave";
-                }
+                successMaj = " " + cave.getNom();
+            } catch ( DAOException e ) {
+                setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+                e.printStackTrace();
+                unsuccessMaj = " " + cave.getNom();
             }
-        } catch ( DAOException e ) {
 
-            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
-            e.printStackTrace();
+        } else {
+            unsuccessMaj = " " + cave.getNom();
         }
 
         return cave;
     }
 
     public Cave creerCave( HttpServletRequest request, Utilisateur sessionUtilisateur ) {
+        Long id = null;
         String nom = getValeurChamp( request, CHAMP_NOM );
         String nbrRow = getValeurChamp( request, CHAMP_ROW );
         String nbrCompartiment = getValeurChamp( request, CHAMP_COMPARTIMENT );
 
         Cave cave = new Cave();
         cave.setUtilisateur( sessionUtilisateur );
-        traiterNom( nom, cave, sessionUtilisateur );
+        cave.setNom( nom );
+        traiterExistenceCave( cave, id );
         traiterNbrCompartiment( nbrCompartiment, cave );
         traiterNbrRow( nbrRow, cave );
 
-        try {
-            if ( erreurs.isEmpty() ) {
+        if ( erreurs.isEmpty() ) {
+            try {
                 caveDao.creer( cave );
-                resultat = "Succès de la création de la cave " + cave.getNom();
-            } else {
-                if ( cave.getNom() != null ) {
-                    resultat = "Échec de la création de la cave " + cave.getNom();
-                } else {
-                    resultat = "Échec de la création de la cave ";
-                }
+                successCreation = " " + cave.getNom();
+            } catch ( DAOException e ) {
+                setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+                e.printStackTrace();
+                unsuccessCreation = " " + cave.getNom();
             }
-        } catch ( DAOException e ) {
 
-            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
-            e.printStackTrace();
+        } else {
+            unsuccessCreation = " " + cave.getNom();
         }
 
         return cave;
     }
 
-    private void traiterNom( String nom, Cave cave, Utilisateur sessionUtilisateur ) {
+    private void traiterExistenceCave( Cave cave, Long id ) {
         try {
-            validationNom( nom, sessionUtilisateur );
+            validationExistenceCave( cave, id );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_NOM, e.getMessage() );
         }
-        cave.setNom( nom );
+
     }
 
-    private void validationNom( String nom, Utilisateur sessionUtilisateur ) throws FormValidationException {
-        if ( nom != null ) {
-            if ( caveDao.trouverParNomEtUtilisateur( nom, sessionUtilisateur ) != null ) {
-                throw new FormValidationException(
-                        "Un nom " + nom + " est déjà utilisée parmis vos caves, merci d'en choisir une autre." );
+    private void validationExistenceCave( Cave cave, Long id ) throws FormValidationException {
+        try {
+            Cave caveDansList = caveDao.trouver( cave );
+            if ( caveDansList != null && caveDansList.getId() != id ) {
+                throw new FormValidationException( cave.getNom() );
             }
 
-        } else {
-            throw new FormValidationException( "Merci de remplir la champ." );
+        } catch ( DAOException e ) {
+            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+            e.printStackTrace();
         }
     }
 
     private void traiterNbrCompartiment( String nbrCompartiment, Cave cave ) {
-        Integer valeurMontant = 0;
-        try {
-            valeurMontant = validationMont( nbrCompartiment );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_COMPARTIMENT, e.getMessage() );
+        Integer valeurMontant = 1;
+        if ( nbrCompartiment != null ) {
+            try {
+                valeurMontant = Integer.parseInt( nbrCompartiment );
+            } catch ( NumberFormatException e ) {
+                valeurMontant = 1;
+            }
         }
         cave.setNbrCompartiment( valeurMontant );
     }
 
-    private Integer validationMont( String mont ) throws FormValidationException {
-        Integer temp;
-        if ( mont != null ) {
-            try {
-                temp = Integer.parseInt( mont );
-                if ( temp < 0 ) {
-                    throw new FormValidationException( "Merci d'entrer un nombre positif." );
-                }
-            } catch ( NumberFormatException e ) {
-                temp = 0;
-                throw new FormValidationException( "Merci d'entrer un nombre." );
-            }
-        } else {
-            temp = 0;
-            throw new FormValidationException( "Merci de remplir la champ." );
-        }
-        return temp;
-    }
-
     private void traiterNbrRow( String nbrRow, Cave cave ) {
-        Integer valeurMontant = 0;
-        try {
-
-            valeurMontant = Integer.parseInt( nbrRow );
-            validationChoix( valeurMontant );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_ROW, e.getMessage() );
+        Integer valeurMontant = 1;
+        if ( nbrRow != null ) {
+            try {
+                valeurMontant = Integer.parseInt( nbrRow );
+            } catch ( NumberFormatException e ) {
+                valeurMontant = 1;
+            }
         }
         cave.setNbrRow( valeurMontant );
-    }
-
-    private void validationChoix( Integer information ) throws FormValidationException {
-        if ( information == null || information == 0 ) {
-            throw new FormValidationException( "Merci d'effectuer votre choix." );
-        }
     }
 
     /*

@@ -27,4 +27,22 @@ public interface BouteilleDao {
 
     List<Bouteille> listerPourUtilisateurDateConsDesc( Long id_utilisateur ) throws DAOException;
 
+    List<Bouteille> listerPourUtilisateurPaysDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurRegionDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurAppelationDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurCruDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurCouleurDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurTailleDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurPrixAchatDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurPrixActuelleDesc( Long id_utilisateur ) throws DAOException;
+
+    List<Bouteille> listerPourUtilisateurDateDeProductionDesc( Long id_utilisateur ) throws DAOException;
+
 }

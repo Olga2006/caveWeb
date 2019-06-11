@@ -29,10 +29,10 @@ public final class InscriptionForm {
     private static final String CHAMP_PASS       = "motdepasse";
     private static final String CHAMP_CONF       = "confirmation";
     private static final String CHAMP_NOM        = "nom";
-    private static final String ALGO_CHIFFREMENT = "SHA-256";
     private static final String CHAMP_ERREUR_DAO = "erreurDao";
 
-    private String              resultat;
+    private String              success;
+    private String              unsuccess;
     private Map<String, String> erreurs          = new HashMap<String, String>();
 
     private UtilisateurDao      utilisateurDao;
@@ -46,8 +46,12 @@ public final class InscriptionForm {
         // TODO Auto-generated constructor stub
     }
 
-    public String getResultat() {
-        return resultat;
+    public String getSuccess() {
+        return success;
+    }
+
+    public String getUnsuccess() {
+        return unsuccess;
     }
 
     public Map<String, String> getErreurs() {
@@ -69,9 +73,9 @@ public final class InscriptionForm {
 
             if ( erreurs.isEmpty() ) {
                 utilisateurDao.creer( utilisateur );
-                resultat = "Succès de l'inscription.";
+                success = "Succès de l'inscription.";
             } else {
-                resultat = "Échec de l'inscription.";
+                unsuccess = "Échec de l'inscription.";
             }
         } catch ( DAOException e ) {
             setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
@@ -96,15 +100,18 @@ public final class InscriptionForm {
 
     /* Validation de l'adresse email */
     private void validationEmail( String email ) throws FormValidationException {
-        if ( email != null ) {
-            if ( !email.matches( "([^.@]+)(\\.[^.@]+)*@([^.@]+\\.)+([^.@]+)" ) ) {
-                throw new FormValidationException( "Merci de saisir une adresse mail valide." );
-            } else if ( utilisateurDao.trouver( email ) != null ) {
-                throw new FormValidationException(
-                        "Cette adresse email est déjà utilisée, merci d'en choisir une autre." );
-            }
-        } else {
-            throw new FormValidationException( "Merci de saisir une adresse mail." );
+        Utilisateur utilisateur = null;
+        try {
+            utilisateur = utilisateurDao.trouver( email );
+
+        } catch ( Exception e ) {
+            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+            e.printStackTrace();
+        }
+
+        if ( utilisateur != null ) {
+            throw new FormValidationException(
+                    "Cette adresse email est déjà utilisée, merci d'en choisir une autre." );
         }
     }
 
@@ -114,42 +121,32 @@ public final class InscriptionForm {
      */
     private void traiterMotsDePasse( String motDePasse, String confirmation, Utilisateur utilisateur ) {
         try {
-            validationMotsDePasse( motDePasse, confirmation );
+            validationMotDePasse( motDePasse );
+            try {
+                validationConfirmationMotsDePasse( motDePasse, confirmation );
+            } catch ( Exception e ) {
+                setErreur( CHAMP_CONF, e.getMessage() );
+            }
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_PASS, e.getMessage() );
-            setErreur( CHAMP_CONF, null );
-        }
 
-        /*
-         * Utilisation de la bibliothèque Jasypt pour chiffrer le mot de passe
-         * efficacement.
-         * 
-         * L'algorithme SHA-256 est ici utilisé, avec par défaut un salage
-         * aléatoire et un grand nombre d'itérations de la fonction de hashage.
-         * 
-         * La String retournée est de longueur 56 et contient le hash en Base64.
-         */
-        /*
-         * ConfigurablePasswordEncryptor passwordEncryptor = new
-         * ConfigurablePasswordEncryptor(); passwordEncryptor.setAlgorithm(
-         * ALGO_CHIFFREMENT ); passwordEncryptor.setPlainDigest( false ); String
-         * motDePasseChiffre = passwordEncryptor.encryptPassword( motDePasse );
-         * // passwordEncryptor.checkPassword();
-         */
+        }
         utilisateur.setMotDePasse( motDePasse );
     }
 
     /* Validation des mots de passe */
-    private void validationMotsDePasse( String motDePasse, String confirmation ) throws FormValidationException {
-        if ( motDePasse != null && confirmation != null ) {
-            if ( !motDePasse.equals( confirmation ) ) {
-                throw new FormValidationException(
-                        "Les mots de passe entrés sont différents, merci de les saisir à nouveau." );
-            } else if ( motDePasse.length() < 3 ) {
-                throw new FormValidationException( "Les mots de passe doivent contenir au moins 3 caractères." );
-            }
-        } else {
-            throw new FormValidationException( "Merci de saisir et confirmer votre mot de passe." );
+    private void validationMotDePasse( String motDePasse ) throws FormValidationException {
+        if ( motDePasse.length() < 6 ) {
+            throw new FormValidationException( "Les mots de passe doivent contenir au moins 6 caractères." );
+        }
+
+    }
+
+    private void validationConfirmationMotsDePasse( String motDePasse, String confirmation )
+            throws FormValidationException {
+        if ( !motDePasse.equals( confirmation ) ) {
+            throw new FormValidationException(
+                    "Les mots de passe entrés sont différents, merci de les saisir à nouveau." );
         }
     }
 

@@ -25,7 +25,7 @@ public class RangeeDaoImpl implements RangeeDao {
     private static final String SQL_INSERT                         = "INSERT INTO Rangee (reference_r, id_compartiment) VALUES (?, ?)";
     private static final String SQL_DELETE_PAR_ID                  = "DELETE FROM Rangee WHERE id = ?";
 
-    private static final String MESSAGE_DAO                        = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique";
+    private static final String MESSAGE_DAO                        = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre <a class=\"linkErrDao\" href=\"support\">service technique </a> ";
 
     private static DAOFactory   daoFactory;
 

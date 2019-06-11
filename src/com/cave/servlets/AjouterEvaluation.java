@@ -1,6 +1,7 @@
 package com.cave.servlets;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,25 +20,25 @@ import com.cave.forms.CreationBouteilleForm;
 
 @WebServlet( "/ajouterEvaluation" )
 public class AjouterEvaluation extends HttpServlet {
-    public static final String VUE                = "/listeBouteilles";
-    public static final String VUE_FORM           = "/WEB-INF/jsp/restreint/afficherBouteilles.jsp";
-    public static final String ACCES_CONNEXION    = "/connection";
+    public static final String  VUE                = "/listeBouteilles";
+    public static final String  VUE_FORM           = "/WEB-INF/jsp/restreint/afficherBouteilles.jsp";
+    public static final String  ACCES_CONNEXION    = "/connection";
 
-    public static final String PARAM_SESSION_USER = "sessionUtilisateur";
+    public static final String  PARAM_SESSION_USER = "sessionUtilisateur";
 
-    public static final String ATT_SUCCES         = "succes";
-    public static final String ATT_SESSION_USER   = "sessionUtilisateur";
-    public static final String ATT_BOUTEILLE      = "bouteilleEvaluation";
-    public static final String ATT_FORM           = "formEvaluation";
+    public static final String  ATT_SUCCES         = "succes";
+    public static final String  ATT_SESSION_USER   = "sessionUtilisateur";
+    public static final String  ATT_BOUTEILLE      = "bouteilleEvaluation";
+    private static final String ATT_BOUTEILLES     = "bouteilles";
+    public static final String  ATT_FORM           = "form";
 
-    public static final String CONF_DAO_FACTORY   = "daofactory";
+    public static final String  CONF_DAO_FACTORY   = "daofactory";
 
-    private Bouteille          bouteille;
-    private String             succes;
+    private Bouteille           bouteille;
 
-    private BouteilleDao       bouteilleDao;
-    private ProducteurDao      producteurDao;
-    private UtilisateurDao     utilisateurDao;
+    private BouteilleDao        bouteilleDao;
+    private ProducteurDao       producteurDao;
+    private UtilisateurDao      utilisateurDao;
 
     public void init() throws ServletException {
         this.bouteilleDao = ( (DAOFactory) getServletContext().getAttribute( CONF_DAO_FACTORY ) ).getBouteilleDao();
@@ -55,16 +56,18 @@ public class AjouterEvaluation extends HttpServlet {
             CreationBouteilleForm form = new CreationBouteilleForm( producteurDao, bouteilleDao );
             bouteille = form.updateEvaluation( request, sessionUtilisateur );
             if ( form.getErreurs().isEmpty() ) {
-                succes = form.getResultat();
-                request.setAttribute( ATT_SUCCES, succes );
+
                 Long id_sessionUtilisateur = sessionUtilisateur.getId();
                 Utilisateur sessionUtilisateurMAJ = utilisateurDao.trouver( id_sessionUtilisateur );
+
                 session.setAttribute( ATT_SESSION_USER, sessionUtilisateurMAJ );
+                List<Bouteille> bouteilles = sessionUtilisateurMAJ.getBouteilles();
+                request.setAttribute( ATT_BOUTEILLES, bouteilles );
             } else {
                 request.setAttribute( ATT_BOUTEILLE, bouteille );
-                request.setAttribute( ATT_FORM, form );
-            }
 
+            }
+            request.setAttribute( ATT_FORM, form );
             this.getServletContext().getRequestDispatcher( VUE_FORM ).forward( request, response );
         } else
 

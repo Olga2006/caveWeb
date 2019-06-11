@@ -19,7 +19,12 @@ public final class CreationProducteurForm {
 
     public static final String  PARAM_ID_PRODUCTEUR     = "idProducteur";
 
-    private String              resultat;
+    private String              successCreation;
+    private String              successMaj;
+
+    private String              unsuccessCreation;
+    private String              unsuccessMaj;
+
     private Map<String, String> erreurs                 = new HashMap<String, String>();
     ProducteurDao               producteurDao;
 
@@ -31,8 +36,20 @@ public final class CreationProducteurForm {
         return erreurs;
     }
 
-    public String getResultat() {
-        return resultat;
+    public String getSuccessCreation() {
+        return successCreation;
+    }
+
+    public String getSuccessMaj() {
+        return successMaj;
+    }
+
+    public String getUnsuccessCreation() {
+        return unsuccessCreation;
+    }
+
+    public String getUnsuccessMaj() {
+        return unsuccessMaj;
     }
 
     public Producteur creerProducteurPourUtilisateur( HttpServletRequest request, Utilisateur sessionUtilisateur ) {
@@ -42,26 +59,22 @@ public final class CreationProducteurForm {
         String contact = getValeurChamp( request, CHAMP_CONTACT );
         Producteur producteur = new Producteur();
         producteur.setUtilisateur( sessionUtilisateur );
-        traiterNom( nom, producteur );
-        traiterAdresse( adresse, producteur );
-        traiterContact( contact, producteur );
+        producteur.setNom( nom );
+        producteur.setAdresse( adresse );
+        producteur.setContact( contact );
         traiterExistenceProducteur( producteur, id );
 
-        try {
-            if ( erreurs.isEmpty() ) {
+        if ( erreurs.isEmpty() ) {
+            try {
                 producteurDao.creerPouUtilisateur( producteur );
-                resultat = "Succès de la création du producteur " + producteur.getNom();
-            } else {
-                if ( producteur.getNom() != null ) {
-                    resultat = "Échec de la création du producteur " + producteur.getNom();
-                } else {
-                    resultat = "Échec de la création du producteur ";
-                }
-
+                successCreation = " " + producteur.getNom();
+            } catch ( DAOException e ) {
+                setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+                e.printStackTrace();
+                unsuccessCreation = " " + producteur.getNom();
             }
-        } catch ( DAOException e ) {
-            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
-            e.printStackTrace();
+        } else {
+            unsuccessCreation = " " + producteur.getNom();
         }
 
         return producteur;
@@ -76,89 +89,25 @@ public final class CreationProducteurForm {
         Producteur producteur = new Producteur();
         producteur.setUtilisateur( sessionUtilisateur );
         producteur.setId( id );
-        traiterNom( nom, producteur );
-        traiterAdresse( adresse, producteur );
-        traiterContact( contact, producteur );
+        producteur.setNom( nom );
+        producteur.setAdresse( adresse );
+        producteur.setContact( contact );
         traiterExistenceProducteur( producteur, id );
 
-        try {
-            if ( erreurs.isEmpty() ) {
+        if ( erreurs.isEmpty() ) {
+            try {
                 producteurDao.update( producteur );
-                resultat = "Succès mise à jour du producteur " + producteur.getNom();
-            } else {
-                if ( producteur.getNom() != null ) {
-                    resultat = "Échec mise à jour du producteur " + producteur.getNom();
-                } else {
-                    resultat = "Échec mise à jour du producteur ";
-                }
+                successMaj = " " + producteur.getNom();
+            } catch ( DAOException e ) {
+                setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+                e.printStackTrace();
+                unsuccessMaj = " " + producteur.getNom();
             }
-        } catch ( DAOException e ) {
-            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
-            e.printStackTrace();
+        } else {
+            unsuccessMaj = " " + producteur.getNom();
         }
 
         return producteur;
-    }
-
-    private void traiterNom( String nom, Producteur producteur ) {
-        try {
-            validationNom( nom );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_NOM, e.getMessage() );
-            e.printStackTrace();
-        }
-        producteur.setNom( nom );
-    }
-
-    private void validationNom( String nom ) throws FormValidationException {
-        if ( nom == null ) {
-            throw new FormValidationException( "Merci d'entrer un nom de producteur." );
-        }
-    }
-
-    private void traiterAdresse( String adresse, Producteur producteur ) {
-        try {
-            validationAdresse( adresse );
-            if ( adresse == null ) {
-                adresse = "non indiqué";
-            }
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_ADRESSE, e.getMessage() );
-        }
-        producteur.setAdresse( adresse );
-    }
-
-    private void validationAdresse( String adresse ) throws FormValidationException {
-
-        /*
-         * if ( !adresse.matches(
-         * "\\d+\\s+([a-zA-Z]+|[a-zA-Z]+\\s[a-zA-Z]+)+\\s+ \\d+ ([a-zA-Z]+|[a-zA-Z]+\\\\s[a-zA-Z]+) "
-         * ) ) { throw new FormValidationException(
-         * "Merci de saisir une adresse valide. Ex. 123, rue X, ZZZZ Ville" ); }
-         */
-    }
-
-    private void traiterContact( String contact, Producteur producteur ) {
-        try {
-            validationContact( contact );
-            if ( contact == null ) {
-                contact = "non indiqué";
-            }
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_CONTACT, e.getMessage() );
-        }
-        producteur.setContact( contact );
-    }
-
-    private void validationContact( String contact ) throws FormValidationException {
-
-        /*
-         * if ( !contact.matches(
-         * "\\d{10}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}" ) ) { throw
-         * new FormValidationException(
-         * "Merci de saisir une contact valide. Ex.1234567890 ou 123-456-7890"
-         * ); }
-         */
     }
 
     private void traiterExistenceProducteur( Producteur producteur, Long id ) {
@@ -172,10 +121,14 @@ public final class CreationProducteurForm {
 
     private void validationExistenceProducteur( Producteur producteur, Long id )
             throws FormValidationException {
-        Producteur producteurDansList = producteurDao.trouver( producteur );
-        if ( producteurDansList != null && producteurDansList.getId() != id ) {
-            throw new FormValidationException(
-                    "Un viticulteur avec les mêmes nom, adress et contact est déjà se trouve dans votre carnet." );
+        try {
+            Producteur producteurDansList = producteurDao.trouver( producteur );
+            if ( producteurDansList != null && producteurDansList.getId() != id ) {
+                throw new FormValidationException( producteur.getNom() );
+            }
+        } catch ( DAOException e ) {
+            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+            e.printStackTrace();
         }
     }
 

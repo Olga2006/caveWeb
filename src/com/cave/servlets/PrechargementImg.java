@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -71,6 +72,7 @@ public class PrechargementImg extends HttpServlet {
     private static final String CHAMP_ERREUR_IMAGE            = "erreurImage";
     private static final String CHAMP_IMAGE                   = "image";
     public static final String  ATT_BOUTEILLE                 = "bouteille";
+    public static final String  ATT_BOUTEILLES                = "bouteilles";
     public static final String  ATT_PRODUCTER                 = "producteur";
     public static final String  ATT_FORM                      = "form";
     public static final String  ATT_SUCCES                    = "succes";
@@ -192,6 +194,7 @@ public class PrechargementImg extends HttpServlet {
                         commentaireTemp, null, null, null, null, null, null, evaluation );
 
                 request.setAttribute( ATT_BOUTEILLE, bouteilleTemp );
+
             }
 
             String chemin = this.getServletConfig().getInitParameter( CHEMIN );
@@ -205,10 +208,12 @@ public class PrechargementImg extends HttpServlet {
                 }
             } catch ( FormValidationException e1 ) {
                 // TODO Auto-generated catch block
-                erreurImage = "Erreur chargement d'image " + e1.getMessage();
+                erreurImage = " " + e1.getMessage();
                 e1.printStackTrace();
                 request.setAttribute( CHAMP_ERREUR_IMAGE, erreurImage );
             }
+            List<Bouteille> bouteilles = sessionUtilisateur.getBouteilles();
+            request.setAttribute( ATT_BOUTEILLES, bouteilles );
 
             this.getServletContext().getRequestDispatcher( VUE_FORM ).forward( request, response );
 

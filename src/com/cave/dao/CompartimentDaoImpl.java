@@ -18,7 +18,7 @@ public class CompartimentDaoImpl implements CompartimentDao {
     private static final String SQL_SELECT_A_PAR_ID_CAVE = "SELECT id, reference_c, id_cave FROM Compartiment WHERE id_cave = ? AND reference_c LIKE 'A%'  ";
     private static final String SQL_SELECT_B_PAR_ID_CAVE = "SELECT id, reference_c , id_cave FROM Compartiment WHERE id_cave = ? AND reference_c LIKE 'B%'  ";
     private static final String SQL_SELECT_PAR_ID        = "SELECT id, reference_c , id_cave FROM Compartiment WHERE id = ? ";
-    private static final String MESSAGE_DAO              = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique";
+    private static final String MESSAGE_DAO              = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre <a class=\"linkErrDao\" href=\"support\">service technique </a> ";
     private static DAOFactory   daoFactory;
 
     public CompartimentDaoImpl( DAOFactory daoFactory ) {

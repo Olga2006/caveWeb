@@ -34,8 +34,6 @@ public class CreationProducteur extends HttpServlet {
 
     public static final String CONF_DAO_FACTORY    = "daofactory";
 
-    private String             succes;
-
     private Producteur         producteur;
 
     private ProducteurDao      producteurDao;
@@ -92,8 +90,7 @@ public class CreationProducteur extends HttpServlet {
             }
 
             if ( form.getErreurs().isEmpty() ) {
-                succes = form.getResultat();
-                request.setAttribute( ATT_SUCCES, succes );
+                request.setAttribute( ATT_FORM, form );
                 Long id_sessionUtilisateur = sessionUtilisateur.getId();
                 Utilisateur sessionUtilisateurMAJ = utilisateurDao.trouver( id_sessionUtilisateur );
                 session.setAttribute( ATT_SESSION_USER, sessionUtilisateurMAJ );

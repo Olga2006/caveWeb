@@ -62,17 +62,6 @@ public class Connection extends HttpServlet {
         if ( form.getErreurs().isEmpty() ) {
 
             session.setAttribute( ATT_SESSION_USER, utilisateur );
-
-            /*
-             * if ( request.getParameter( CHAMP_MEMOIRE ) != null ) { DateTime
-             * dt = new DateTime(); DateTimeFormatter formatter =
-             * DateTimeFormat.forPattern( FORMAT_DATE ); String
-             * dateDerniereConnexion = dt.toString( formatter ); setCookie(
-             * response, COOKIE_DERNIERE_CONNEXION, dateDerniereConnexion,
-             * COOKIE_MAX_AGE ); } else { setCookie( response,
-             * COOKIE_DERNIERE_CONNEXION, "", 0 ); }
-             */
-
             response.sendRedirect( request.getContextPath() + VUE_SUCCES );
 
         } else {

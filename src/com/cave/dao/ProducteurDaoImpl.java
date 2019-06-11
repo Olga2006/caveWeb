@@ -25,7 +25,7 @@ public class ProducteurDaoImpl implements ProducteurDao {
     private static final String SQL_DELETE_PAR_ID           = "DELETE FROM Producteur WHERE id = ?";
     private static final String SQL_UPDATE                  = "UPDATE producteur SET nom = ?, adresse = ?, contact = ? WHERE id = ? ";
 
-    private static final String MESSAGE_DAO                 = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre <a class=\"linkErrDao\" href=\"support\">service technique </a> ";
+    private static final String MESSAGE_DAO                 = " ";
 
     private static DAOFactory   daoFactory;
 

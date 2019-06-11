@@ -21,7 +21,7 @@ public class UtilisateurDaoImpl implements UtilisateurDao {
     private static final String SQL_SELECT_PAR_EMAIL_MDP = "SELECT id, email, nom, mot_de_passe, date_inscription FROM Utilisateur WHERE email = ? AND mot_de_passe = ? ";
     private static final String SQL_INSERT               = "INSERT INTO Utilisateur (email, mot_de_passe, nom, date_inscription) VALUES (?, ?, ?, NOW())";
 
-    private static final String MESSAGE_DAO              = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique";
+    private static final String MESSAGE_DAO              = "";
 
     private static DAOFactory   daoFactory;
 

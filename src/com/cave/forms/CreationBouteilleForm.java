@@ -1,5 +1,6 @@
 package com.cave.forms;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,6 @@ public final class CreationBouteilleForm {
     private static final String CHAMP_CHOIX_AJOUTER_PRODUCTER = "choixAjouterProducteur";
     private static final String CHAMP_LISTE_PRODCTEURS        = "listeProducteurs";
     private static final String CHAMP_ERREUR_DAO              = "erreurDaoBouteille";
-    private static final String CHAMP_ERREUR_IMAGE            = "erreurImage";
     private static final String CHAMP_NOM                     = "nom";
 
     private static final String CHAMP_BOTEILLE_EXISTE         = "bouteilleExiste";
@@ -42,31 +42,101 @@ public final class CreationBouteilleForm {
     private static final String CHAMP_EVALUATION              = "evaluation";
     private static final String CHAMP_COMMENTAIRE             = "commentaire";
 
-    private static final int    TAILLE_TAMPON                 = 10240;                        // 10ko
-
     private static final String ANCIEN_PRODUCTER              = "ancienProducteur";
     private static final String AJOUTER_PRODUCTER             = "ajouterProducteur";
-    private static final String FORMAT_DATE                   = "dd/MM/yyyy HH:mm:ss";
 
     public static Integer       beginningimg                  = 1;
 
-    private String              resultat;
-    private Map<String, String> erreurs                       = new HashMap<String, String>();
+    private String              successCreation;
+    private String              successMaj;
+    private String              successCreationB;
+    private String              successMajB;
+    private String              successMajLC;
+    private String              successMajEvaluation;
+    private String              successMajCommentaire;
+
+    private String              unsuccessCreation;
+    private String              unsuccessMaj;
+    private String              unsuccessCreationB;
+    private String              unsuccessMajB;
+    private String              unsuccessMajLC;
+    private String              unsuccessMajEvaluation;
+    private String              unsuccessMajCommentaire;
+
+    /* ------------------Pour producteur---------------------------- */
+    public String getSuccessCreation() {
+        return successCreation;
+    }
+
+    public String getSuccessMaj() {
+        return successMaj;
+    }
+
+    public String getUnsuccessCreation() {
+        return unsuccessCreation;
+    }
+
+    public String getUnsuccessMaj() {
+        return unsuccessMaj;
+    }
+    /* ------------------fin---------------------------- */
+
+    public void setUnsuccessMajCommentaire( String unsuccessMajCommentaire ) {
+        this.unsuccessMajCommentaire = unsuccessMajCommentaire;
+    }
+
+    private Map<String, String> erreurs = new HashMap<String, String>();
 
     private BouteilleDao        bouteilleDao;
     private ProducteurDao       producteurDao;
 
-    public CreationBouteilleForm( ProducteurDao producteurDao, BouteilleDao bouteilleDao ) {
-        this.bouteilleDao = bouteilleDao;
-        this.producteurDao = producteurDao;
+    public String getSuccessCreationB() {
+        return successCreationB;
+    }
+
+    public String getSuccessMajB() {
+        return successMajB;
+    }
+
+    public String getSuccessMajLC() {
+        return successMajLC;
+    }
+
+    public String getSuccessMajEvaluation() {
+        return successMajEvaluation;
+    }
+
+    public String getSuccessMajCommentaire() {
+        return successMajCommentaire;
+    }
+
+    public String getUnsuccessCreationB() {
+        return unsuccessCreationB;
+    }
+
+    public String getUnsuccessMajB() {
+        return unsuccessMajB;
+    }
+
+    public String getUnsuccessMajLC() {
+        return unsuccessMajLC;
+    }
+
+    public String getUnsuccessMajEvaluation() {
+        return unsuccessMajEvaluation;
+    }
+
+    public String getUnsuccessMajCommentaire() {
+        return unsuccessMajCommentaire;
     }
 
     public Map<String, String> getErreurs() {
         return erreurs;
     }
 
-    public String getResultat() {
-        return resultat;
+    public CreationBouteilleForm( ProducteurDao producteurDao, BouteilleDao bouteilleDao ) {
+        this.bouteilleDao = bouteilleDao;
+        this.producteurDao = producteurDao;
     }
 
     public Bouteille creerBouteillePourUtilisateur( HttpServletRequest request, Utilisateur sessionUtilisateur,
@@ -83,7 +153,7 @@ public final class CreationBouteilleForm {
                     id = Long.parseLong( idAncienProducteur );
                 } catch ( NumberFormatException e ) {
                     setErreur( CHAMP_CHOIX_PRODUCTER,
-                            "Producteur inconnu, merci d'utiliser le formulaire prévu à cet effet." );
+                            " " );
                     id = 0L;
                 }
 
@@ -104,6 +174,10 @@ public final class CreationBouteilleForm {
                 CreationProducteurForm producteurForm = new CreationProducteurForm( producteurDao );
                 producteur = producteurForm.creerProducteurPourUtilisateur( request, sessionUtilisateur );
                 erreurs = producteurForm.getErreurs();
+                successCreation = producteurForm.getSuccessCreation();
+                unsuccessCreation = producteurForm.getUnsuccessCreation();
+                successMaj = producteurForm.getSuccessMaj();
+                unsuccessMaj = producteurForm.getUnsuccessMaj();
             }
         }
 
@@ -123,11 +197,15 @@ public final class CreationBouteilleForm {
         String evaluation = getValeurChamp( request, CHAMP_EVALUATION );
         String commentaire = getValeurChamp( request, CHAMP_COMMENTAIRE );
         String image = request.getParameter( PARAM_IMAGE );
-        // DateTime dateDeProduction = getValeurChamp( request,
-        // CHAMP_DATE_DE_PRODUCTION );
 
         Bouteille bouteille = new Bouteille();
         bouteille.setUtilisateur( sessionUtilisateur );
+        bouteille.setNom( nom );
+        bouteille.setPays( pays );
+        bouteille.setRegion( region );
+        bouteille.setAppelation( appelation );
+        bouteille.setCru( cru );
+        bouteille.setCouleur( couleur );
         bouteille.setCommentaire( commentaire );
         if ( image != null ) {
             bouteille.setImage( image );
@@ -135,47 +213,27 @@ public final class CreationBouteilleForm {
             bouteille.setImage( "defaultetiquette.jpg" );
         }
         traiterProdcteur( producteur, bouteille );
-        traiterNom( nom, bouteille );
-        traiterPays( pays, bouteille );
-        traiterRegion( region, bouteille );
-        traiterAppelation( appelation, bouteille );
-        traiterCru( cru, bouteille );
-        traiterCouleur( couleur, bouteille );
         traiterTaille( taille, bouteille );
         traiterQuantite( quantiteAcheter, bouteille );
         traiterPrixAchat( prixAchat, bouteille );
         traiterPrixActuelle( prixActuelle, bouteille );
-        /* traiterImage( bouteille, request, chemin ); */
         traiterDateGarder( dateGarder, bouteille );
         traiterDateProduction( dateProduction, bouteille );
         traiterEvaluation( evaluation, bouteille );
         traiterExistenceBouteille( bouteille, id );
 
-        /*
-         * try { String image = validationImage( request, chemin ); if ( image
-         * != null && !image.isEmpty() ) { bouteille.setImage( image ); } else {
-         * bouteille.setImage( "defaultetiquette.jpg" ); } } catch (
-         * FormValidationException e1 ) { // TODO Auto-generated catch block
-         * setErreur( CHAMP_ERREUR_IMAGE, e1.getMessage() );
-         * e1.printStackTrace(); }
-         */
-
-        try {
-            if ( erreurs.isEmpty() ) {
+        if ( erreurs.isEmpty() ) {
+            try {
                 bouteilleDao.creerPourUtilisateur( bouteille );
-                resultat = "Succès de la création de la bouteille " + bouteille.getNom();
-            } else {
-                if ( bouteille.getNom() != null ) {
-                    resultat = "Échec de la création de la bouteille " + bouteille.getNom();
-                } else {
-                    resultat = "Échec de la création de la bouteille ";
-                }
+                successCreationB = " " + bouteille.getNom();
+            } catch ( DAOException e ) {
+                setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+                e.printStackTrace();
+                unsuccessCreationB = " " + bouteille.getNom();
             }
-        } catch ( DAOException e ) {
-            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
-            e.printStackTrace();
+        } else {
+            unsuccessCreationB = " " + bouteille.getNom();
         }
-
         return bouteille;
     }
 
@@ -192,7 +250,7 @@ public final class CreationBouteilleForm {
                     id = Long.parseLong( idAncienProducteur );
                 } catch ( NumberFormatException e ) {
                     setErreur( CHAMP_CHOIX_PRODUCTER,
-                            "Producteur inconnu, merci d'utiliser le formulaire prévu à cet effet." );
+                            " " );
                     id = 0L;
                 }
 
@@ -213,6 +271,10 @@ public final class CreationBouteilleForm {
                 CreationProducteurForm producteurForm = new CreationProducteurForm( producteurDao );
                 producteur = producteurForm.creerProducteurPourUtilisateur( request, sessionUtilisateur );
                 erreurs = producteurForm.getErreurs();
+                successCreation = producteurForm.getSuccessCreation();
+                unsuccessCreation = producteurForm.getUnsuccessCreation();
+                successMaj = producteurForm.getSuccessMaj();
+                unsuccessMaj = producteurForm.getUnsuccessMaj();
             }
         }
         Long id = Long.parseLong( request.getParameter( PARAM_ID_BOUTEILLE ) );
@@ -236,6 +298,12 @@ public final class CreationBouteilleForm {
         Bouteille bouteille = new Bouteille();
         bouteille.setUtilisateur( sessionUtilisateur );
         bouteille.setId( id );
+        bouteille.setNom( nom );
+        bouteille.setPays( pays );
+        bouteille.setRegion( region );
+        bouteille.setAppelation( appelation );
+        bouteille.setCru( cru );
+        bouteille.setCouleur( couleur );
         bouteille.setCommentaire( commentaire );
         if ( image != null ) {
             bouteille.setImage( image );
@@ -244,15 +312,7 @@ public final class CreationBouteilleForm {
             bouteille.setImage( bouteilleCurr.getImage() );
         }
         traiterProdcteur( producteur, bouteille );
-        traiterNom( nom, bouteille );
-
-        traiterPays( pays, bouteille );
-        traiterRegion( region, bouteille );
-        traiterAppelation( appelation, bouteille );
-        traiterCru( cru, bouteille );
-        traiterCouleur( couleur, bouteille );
         traiterTaille( taille, bouteille );
-
         traiterPrixAchat( prixAchat, bouteille );
         traiterPrixActuelle( prixActuelle, bouteille );
         traiterQuantite( quantiteAcheter, bouteille );
@@ -262,22 +322,19 @@ public final class CreationBouteilleForm {
         traiterEvaluation( evaluation, bouteille );
         traiterExistenceBouteille( bouteille, id );
 
-        try {
-            if ( erreurs.isEmpty() ) {
+        if ( erreurs.isEmpty() ) {
+            try {
                 bouteilleDao.update( bouteille );
-                resultat = "Succès mise à jour de la bouteille " + bouteille.getNom();
-            } else {
-                if ( bouteille.getNom() != null ) {
-                    resultat = "Échec mise à jour de la bouteille " + bouteille.getNom();
-                } else {
-                    resultat = "Échec mise à jour de la bouteille ";
-                }
+                successMajB = " " + bouteille.getNom();
+            } catch ( DAOException e ) {
+                setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+                e.printStackTrace();
+                unsuccessMajB = " " + bouteille.getNom();
             }
-        } catch ( DAOException e ) {
-            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
-            e.printStackTrace();
-        }
 
+        } else {
+            unsuccessMajB = " " + bouteille.getNom();
+        }
         return bouteille;
 
     }
@@ -295,19 +352,12 @@ public final class CreationBouteilleForm {
             traiterEvaluation( evaluation, bouteille );
 
             try {
-                if ( erreurs.isEmpty() ) {
-                    bouteilleDao.changerEvaluation( bouteille.getEvaluation(), id );
-                    resultat = "Succès de la modification de l'evaluation pour " + bouteille.getNom();
-                } else {
-                    if ( bouteille.getNom() != null ) {
-                        resultat = "Échec de la modification de l'evaluation pour " + bouteille.getNom();
-                    } else {
-                        resultat = "Échec de la modification de l'evaluation ";
-                    }
-                }
+                bouteilleDao.changerEvaluation( bouteille.getEvaluation(), id );
+                successMajEvaluation = " " + bouteille.getNom();
             } catch ( DAOException e ) {
                 setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
                 e.printStackTrace();
+                unsuccessMajEvaluation = " " + bouteille.getNom();
             }
 
         }
@@ -327,23 +377,14 @@ public final class CreationBouteilleForm {
             traiterQuantite( quantiteAcheter, bouteille );
 
             try {
-                if ( erreurs.isEmpty() ) {
-                    bouteilleDao.changerLC( bouteille.getNbrListCourses(), id );
-                    resultat = "Succès de la modification du nombre bouteille à acheter pour " + bouteille.getNom();
-                } else {
-                    if ( bouteille.getNom() != null ) {
-                        resultat = "Échec de la modification du nombre bouteille à acheter pour " + bouteille.getNom();
-                    } else {
-                        resultat = "Échec de la modification du nombre bouteille à acheter";
-                    }
-                }
+                bouteilleDao.changerLC( bouteille.getNbrListCourses(), id );
+                successMajLC = " " + bouteille.getNom();
             } catch ( DAOException e ) {
                 setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
                 e.printStackTrace();
+                unsuccessMajLC = " " + bouteille.getNom();
             }
-
         }
-
         return bouteille;
     }
 
@@ -359,19 +400,12 @@ public final class CreationBouteilleForm {
             bouteille.setCommentaire( commentaire );
 
             try {
-                if ( erreurs.isEmpty() ) {
-                    bouteilleDao.ajouterCommentaire( bouteille.getCommentaire(), id );
-                    resultat = "Succès de la modification des commentaires pour " + bouteille.getNom();
-                } else {
-                    if ( bouteille.getNom() != null ) {
-                        resultat = "Échec de la modification des commentaires pour " + bouteille.getNom();
-                    } else {
-                        resultat = "Échec de la modification des commentaires";
-                    }
-                }
+                bouteilleDao.ajouterCommentaire( bouteille.getCommentaire(), id );
+                successMajCommentaire = " " + bouteille.getNom();
             } catch ( DAOException e ) {
                 setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
                 e.printStackTrace();
+                unsuccessMajCommentaire = " " + bouteille.getNom();
             }
 
         }
@@ -388,134 +422,34 @@ public final class CreationBouteilleForm {
         bouteille.setProducteur( producteur );
     }
 
-    private void traiterNom( String nom, Bouteille bouteille ) {
-        try {
-            validationInformation( nom );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_NOM, e.getMessage() );
-        }
-        bouteille.setNom( nom );
-    }
-
-    private void traiterCouleur( String couleur, Bouteille bouteille ) {
-        try {
-            validationInformation( couleur );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_COLEUR, e.getMessage() );
-        }
-        bouteille.setCouleur( couleur );
-    }
-
-    private void traiterCru( String cru, Bouteille bouteille ) {
-
-        try {
-            validationInformation( cru );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_CRU, e.getMessage() );
-        }
-        bouteille.setCru( cru );
-    }
-
-    private void traiterAppelation( String appelation, Bouteille bouteille ) {
-
-        try {
-            validationInformation( appelation );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_APPELATION, e.getMessage() );
-        }
-        bouteille.setAppelation( appelation );
-    }
-
-    private void traiterRegion( String region, Bouteille bouteille ) {
-
-        try {
-            validationInformation( region );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_REGION, e.getMessage() );
-        }
-        bouteille.setRegion( region );
-    }
-
-    private void traiterPays( String pays, Bouteille bouteille ) {
-        try {
-            validationInformation( pays );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_PAYS, e.getMessage() );
-        }
-        bouteille.setPays( pays );
-    }
-
-    private void validationInformation( String information ) throws FormValidationException {
-        if ( information != null ) {
-            if ( information.length() < 1 ) {
-                throw new FormValidationException( "Information doit contenir au moins 1 caractères." );
-            }
-        } else {
-            throw new FormValidationException( "Merci d'entrer information" );
-        }
-    }
-
     private void traiterTaille( String taille, Bouteille bouteille ) {
-
         double valeurMontant = 0;
-        try {
-            valeurMontant = validationTaille( taille );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_TAILLE, e.getMessage() );
-        }
+        valeurMontant = validationDouble( taille );
         bouteille.setTaille( valeurMontant );
-    }
-
-    private double validationTaille( String nombre ) throws FormValidationException {
-        double temp;
-        if ( nombre != null ) {
-            try {
-                temp = Double.parseDouble( nombre );
-                if ( temp < 0 ) {
-                    throw new FormValidationException( "Le montant doit être un nombre positif." );
-                }
-            } catch ( NumberFormatException e ) {
-                temp = 0;
-                throw new FormValidationException( "Le montant doit être un nombre." );
-            }
-        } else {
-            temp = 0;
-            throw new FormValidationException( "Merci d'effectuer votre choix." );
-        }
-        return temp;
     }
 
     private void traiterPrixActuelle( String prixActuelle, Bouteille bouteille ) {
         double valeurMontant = 0;
-        try {
-            valeurMontant = validationMontant( prixActuelle );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_PRIX_ACTUELLE, e.getMessage() );
-        }
+        valeurMontant = validationDouble( prixActuelle );
         bouteille.setPrixActuelle( valeurMontant );
     }
 
     private void traiterPrixAchat( String prixAchat, Bouteille bouteille ) {
         double valeurMontant = 0;
-        try {
-            valeurMontant = validationMontant( prixAchat );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_PRIX_ACHAT, e.getMessage() );
-        }
+        valeurMontant = validationDouble( prixAchat );
         bouteille.setPrixAchat( valeurMontant );
     }
 
-    private double validationMontant( String nombre ) throws FormValidationException {
+    private double validationDouble( String nombre ) {
         double temp;
         if ( nombre != null ) {
             try {
                 temp = Double.parseDouble( nombre );
                 if ( temp < 0 ) {
-                    throw new FormValidationException( "Le montant doit être un nombre positif." );
+                    temp = 0;
                 }
             } catch ( NumberFormatException e ) {
                 temp = 0;
-                throw new FormValidationException( "Le montant doit être un nombre." );
             }
         } else {
             temp = 0;
@@ -526,35 +460,26 @@ public final class CreationBouteilleForm {
 
     private void traiterQuantite( String quantiteAcheter, Bouteille bouteille ) {
         Integer valeurMontant = 0;
-        try {
-            valeurMontant = validationNombre( quantiteAcheter );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_QUANTITE_ACHETER, e.getMessage() );
-        }
+        valeurMontant = validationNombre( quantiteAcheter );
         bouteille.setNbrListCourses( valeurMontant );
     }
 
     private void traiterEvaluation( String evaluation, Bouteille bouteille ) {
         Integer valeurMontant = 0;
-        try {
-            valeurMontant = validationNombre( evaluation );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_EVALUATION, e.getMessage() );
-        }
+        valeurMontant = validationNombre( evaluation );
         bouteille.setEvaluation( valeurMontant );
     }
 
-    private Integer validationNombre( String nombre ) throws FormValidationException {
+    private Integer validationNombre( String nombre ) {
         Integer temp;
         if ( nombre != null ) {
             try {
                 temp = Integer.parseInt( nombre );
                 if ( temp < 0 ) {
-                    throw new FormValidationException( "Le montant doit être un nombre positif." );
+                    temp = 0;
                 }
             } catch ( NumberFormatException e ) {
                 temp = 0;
-                throw new FormValidationException( "Le montant doit être un nombre." );
             }
         } else {
             temp = 0;
@@ -565,41 +490,34 @@ public final class CreationBouteilleForm {
 
     private void traiterDateProduction( String dateProduction, Bouteille bouteille ) {
         int anee = 0000;
-        try {
-            anee = validationDate( dateProduction );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_DATE_DE_PRODUCTION, e.getMessage() );
-        }
+
+        anee = validationAnee( dateProduction );
         bouteille.setDateDeProduction( anee );
     }
 
     private void traiterDateGarder( String dateGarder, Bouteille bouteille ) {
         int anee = 0000;
-        try {
-            anee = validationDate( dateGarder );
-        } catch ( FormValidationException e ) {
-            setErreur( CHAMP_DATE_GARDER, e.getMessage() );
-        }
+        anee = validationAnee( dateGarder );
         bouteille.setDateGarder( anee );
     }
 
-    private Integer validationDate( String anee ) throws FormValidationException {
+    private Integer validationAnee( String anee ) {
         Integer temp;
+        Calendar now = Calendar.getInstance();
+        Integer yearNow = now.get( Calendar.YEAR );
+
         if ( anee != null ) {
             try {
                 temp = Integer.parseInt( anee );
-                if ( temp < 0 || anee.length() != 4 ) {
-                    throw new FormValidationException(
-                            "L'année doit être un nombre positif et contenir 4 caractères." );
+                if ( temp < 0 ) {
+                    temp = yearNow;
                 }
             } catch ( NumberFormatException e ) {
-                temp = 0000;
-                throw new FormValidationException( "L'année doit être un nombre." );
+                temp = yearNow;
             }
-
         } else {
-            temp = 0000;
-            throw new FormValidationException( "Merci d'entrer l'année." );
+            temp = yearNow;
+
         }
         return temp;
     }
@@ -615,11 +533,25 @@ public final class CreationBouteilleForm {
 
     private void validationExistenceBouteille( Bouteille bouteille, Long id )
             throws FormValidationException {
-        Bouteille bouteilleDansList = bouteilleDao.trouver( bouteille );
-        if ( bouteilleDansList != null && bouteilleDansList.getId() != id ) {
-            throw new FormValidationException(
-                    "Cette Bouteille est déjà se trouve dans votre carnet." );
+        try {
+            Bouteille bouteilleDansList = bouteilleDao.trouver( bouteille );
+
+            if ( bouteilleDansList != null ) {
+                Long idProdDansList = bouteilleDansList.getIdProducteur();
+                Long idProd = bouteille.getIdProducteur();
+                if ( idProdDansList == 0 && idProd == null && bouteilleDansList.getId() != id ) {
+                    throw new FormValidationException( bouteille.getNom() );
+                }
+                if ( bouteilleDansList.getId() != id && idProdDansList == idProd ) {
+                    throw new FormValidationException( bouteille.getNom() );
+                }
+            }
+
+        } catch ( DAOException e ) {
+            setErreur( CHAMP_ERREUR_DAO, e.getMessage() );
+            e.printStackTrace();
         }
+
     }
 
     /*

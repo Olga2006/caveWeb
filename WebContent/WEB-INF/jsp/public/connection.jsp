@@ -1,11 +1,13 @@
 <%@ page pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="messages"/>
 <!DOCTYPE html>
 <html data-wf-page="5c8a4e5935905d04eb6497f8"
 	data-wf-site="5bf300026add22d3cd0f2499">
 <head>
 <meta charset="utf-8">
-<title>Connection</title>
+<title><fmt:message key="connection.title"></fmt:message></title>
 <jsp:include page="/WEB-INF/jsp/head/head.jsp"></jsp:include>
 </head>
 <body>
@@ -22,48 +24,52 @@
 
 
 
-				<div class="erreur">Vous n'avez pas de compte?</div>
+				<div class="erreur"><fmt:message key="connection.pasdecompte"></fmt:message></div>
 
-				<a data-w-id="0286df74-097a-f033-0838-aa37db8e0fab"
-					style="display: flex" href="<c:url value="/inscription"></c:url>"
-					class="tabformul">Créer mon compte</a>
+				<a  href="<c:url value="/inscription"></c:url>"
+					class="buttonstandart"><fmt:message key="connection.creercompte"></fmt:message></a>
 
 
 
 				<div class="butformulairenreg">
 					<div class="formblockconnectionsecond">
-						<form id="email-form" name="email-form" data-name="Email Form"
-							method="post" action="<c:url value="/connection"></c:url>"
-							redirect="cave" data-redirect="cave"
-							class="formaconnectioninscription">
+						<form id="email-form" name="email-form"
+							method="post" action="<c:url value="/connection"></c:url>" class="formaconnectioninscription">
 
 							<label for="email" class="labelformbouteille"><strong
-								class="labelform">Email Address</strong></label> <input type="email"
-								class="inputformbouteille w-input" autofocus="true"
-								maxlength="60" name="email" placeholder="Votre email" id="email"
-								value="<c:out value="${utilisateur.email}"/>"> <label
-								for="motdepasseconnection" class="labelformbouteille">Mot
-								de passe</label><input type="password"
-								class="inputformbouteille w-input" maxlength="60"
+								class="labelform"><fmt:message key="connection.label.email"></fmt:message></strong></label> <input type="email"
+								class="inputformbouteille w-input" required="required"
+								maxlength="60" name="email" placeholder="Email" id="email"
+								value="<c:out value="${utilisateur.email}"/>"> 
+								
+								<label
+								for="motdepasseconnection" class="labelformbouteille"><fmt:message key="connection.label.motdepasseconnection"></fmt:message></label><input type="password"
+								class="inputformbouteille w-input" maxlength="60" required="required"
 								name="motdepasseconnection" id="motdepasseconnection"> <br>
 							<br> <br>
 
-							<c:if test="${!empty form.erreurs}">
-								<div class="erreur">${form.erreurs['motdepasseconnection']}</div>
+							<c:if test="${!empty form.erreurs['motdepasseconnection']}">
 								<%-- <a href="<c:url value="/envoyerMDP"></c:url>" class="sansLabel">Mot
 								de passe oublié</a> --%>
-								<div class="erreur">
-									Essayez encore ou cliquez sur
+								<div class="erreur"><fmt:message key="connection.unsuccess"></fmt:message></div>
+								<div class="erreur"><fmt:message key="connection.erreur.motdepasse"></fmt:message></div>
+								<div class="erreur"><fmt:message key="connection.essayezencore"></fmt:message>
 									
-									<a  href="#" class="tabmdpoblie">Mote de passe oublié</a>
+									<a  href="#" class="tabmdpoblie"><fmt:message key="connection.button.motdepasseoublie"></fmt:message></a>
 									
 								</div>
 							</c:if>
+							<c:if test="${!empty form.erreurs['erreurDao']}">
+								<div class="erreur"><fmt:message key="erreur.dao"></fmt:message> ${form.erreurs['erreurDao']}</div>								
+							</c:if>
+							
+							
+							
 
-							<input type="submit" value="Connection"
-								data-wait="Veuillez patienter..." class="tabformul">
+							<input type="submit" value="<fmt:message key="button.connection"></fmt:message>"
+								data-wait="<fmt:message key="button.wait"></fmt:message>" class="buttonstandart">
 						</form>
-<%-- <span class="erreur">${form.resultat}</span> --%>
+
 					</div>
 				</div>
 			</div>
@@ -73,7 +79,7 @@
 	<div class="divdisapppourtriggerevaluation" id="divdisapppourtriggerdel" style="display: none">
 		<div class="formmain">
 			<div class="divhrightelementsmall">
-				<a title="Sortir" href="#" class="linksortirform" id="sortirformsansrechargement" > 
+				<a title="<fmt:message key="button.title.sortir"></fmt:message>" href="#" class="linksortirform" id="sortirformsansrechargement" > 
 				
 				<img
 					src="images/sortir.png" width="30" height="50"
@@ -90,19 +96,20 @@
 				<div class="divhcenterelement">
 
 					<label for="email" class="labelformbouteille"><strong
-						class="labelform">Votre Address Email <span
+						class="labelform"><fmt:message key="connection.label.votreaddresseemail"></fmt:message><span
 							class="requis">*</span></strong></label> <input type="email"
 						class="inputformbouteille w-input"  maxlength="30"
 						name="email" data-name="Email 5"
 						value="<c:out value="${utilisateur.email}"/>" id="email"> 
-						<span class="erreur">${form.erreurs['email']}</span>
-
+                             <c:if test="${!empty form.erreurs['email']}">
+								<div class="erreur"><fmt:message key="connection.erreur.email"></fmt:message></div>
+							</c:if>
 				</div>
 
 
 				<div class="divhcenterelement">
-					<input type="submit" value="Valider"
-						data-wait="Merci de patienter ..." class="tabformul w-button">
+					<input type="submit" value="<fmt:message key="button.valider"></fmt:message>"
+						data-wait="<fmt:message key="button.wait"></fmt:message>" class="buttonstandart">
 
 
 				</div>

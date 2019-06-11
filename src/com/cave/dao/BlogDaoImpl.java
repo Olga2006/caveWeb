@@ -16,7 +16,7 @@ public class BlogDaoImpl implements BlogDao {
 
     private static final String SQL_SELECT  = "SELECT id, nom_article, nom_auteur, subtheme, date_edition, article1, article2, article3  FROM Blog";
 
-    private static final String MESSAGE_DAO = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique";
+    private static final String MESSAGE_DAO = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre <a class=\"linkErrDao\" href=\"support\">service technique </a> ";
 
     private static DAOFactory   daoFactory;
 

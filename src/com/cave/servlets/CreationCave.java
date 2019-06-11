@@ -21,45 +21,19 @@ public class CreationCave extends HttpServlet {
     public static final String VUE_SUCCES         = "/listeCaves";
     public static final String VUE_FORM           = "/WEB-INF/jsp/restreint/afficherCaves.jsp";
 
-    /*
-     * public static final String VUE_SUCCES_REDACTEUR = "/redigerCave"; public
-     * static final String VUE_FORM_REDACTEUR =
-     * "/WEB-INF/jsp/restreint/afficherRedacteurCave.jsp";
-     */
-
     public static final String ACCES_CONNEXION    = "/connection";
-
-    // public static final String CHEMIN = "chemin";
-    /* public static final String PARAM_ID_CAVE = "idCave"; */
 
     public static final String PARAM_SESSION_USER = "sessionUtilisateur";
     public static final String PARAM_ID_CAVE      = "idCave";
     public static final String PARAM_IS_CREATION  = "isCreation";
-    /*
-     * public static final String PARAM_NOM_CAVE = "nomCave"; public static
-     * final String PARAM_NBR_COMPARTIMENT = "nbrCompartiment"; public static
-     * final String PARAM_NBR_ROW = "nbrRow"; public static final String
-     * PARAM_IS_CREATION = "isCreation"; public static final String
-     * PARAM_IS_REDACTEUR = "isRedacteur";
-     */
 
     public static final String ATT_CAVE           = "cave";
     public static final String ATT_IS_CREATION    = "isCreation";
     public static final String ATT_FORM           = "form";
-    public static final String ATT_SUCCES         = "succes";
+
     public static final String ATT_SESSION_USER   = "sessionUtilisateur";
 
-    /*
-     * public static final String ATT_NBR_COMPARTIMENT = "nbrCompartiment";
-     * public static final String ATT_NBR_ROW = "nbrRow"; public static final
-     * String ATT_NOM_CAVE = "nomCave"; public static final String ATT_ID_CAVE =
-     * "idCave"; public static final String ATT_ID_CAVE_R = "idCaveR"; public
-     * static final String ATT_IS_CREATION = "isCreation";
-     */
-
     public static final String CONF_DAO_FACTORY   = "daofactory";
-
-    private String             succes;
 
     private Cave               cave;
 
@@ -122,8 +96,7 @@ public class CreationCave extends HttpServlet {
             }
 
             if ( form.getErreurs().isEmpty() ) {
-                succes = form.getResultat();
-                request.setAttribute( ATT_SUCCES, succes );
+                request.setAttribute( ATT_FORM, form );
                 Long id_sessionUtilisateur = sessionUtilisateur.getId();
                 Utilisateur sessionUtilisateurMAJ = utilisateurDao.trouver( id_sessionUtilisateur );
                 session.setAttribute( ATT_SESSION_USER, sessionUtilisateurMAJ );

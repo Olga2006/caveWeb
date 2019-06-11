@@ -1,11 +1,13 @@
 <%@ page pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="messages"/>
 <!DOCTYPE html>
 <html data-wf-page="5bf300026add2206a70f249f"
 	data-wf-site="5bf300026add22d3cd0f2499">
 <head>
 <meta charset="utf-8">
-<title>Connection</title>
+<title><fmt:message key="connection.title"></fmt:message></title>
 <jsp:include page="/WEB-INF/jsp/head/head.jsp"></jsp:include>
 </head>
 
@@ -24,12 +26,10 @@
 			class="vetkaimg">
 		<div  class="core">
 			<div  class="txtcorew w-container">
-				<p  class="coretxtw">
-					CaveWeb c'est une plateforme communautaire de gestion de cave à vin gratuit.
-					 Chaque utilisateur peux enrigistrer et gerer plusieur cave à vin. En creant des carnets de vos bouteille vous ajoutez les commentairs, 
-					 evaluation et egalement les contacts des viticulteurs.
-
-				</p>
+				<p  class="coretxtw"><fmt:message key="connection.shortintroductionfirst"></fmt:message></p>
+				<p  class="coretxtw"><fmt:message key="connection.shortintroductionsecond"></fmt:message></p>
+				<p  class="coretxtw"><fmt:message key="connection.shortintroductionthird"></fmt:message></p>
+				<p  class="coretxtw"><fmt:message key="connection.shortintroductionfourth"></fmt:message></p>
 			</div>
 			<img src="images/zolotoy_kluch-600x190.png"
 				data-w-id="48c864dc-1ffc-9e3f-266a-880be2f1928f"
@@ -38,10 +38,10 @@
 			<div class="butformulairenreg">
 			
 				<a  href="<c:url value="/connection"></c:url>"
-							class="tabformul">Connecter à mon compte</a>
+							class="buttonstandart"><fmt:message key="connection.meconnecter"></fmt:message></a>
 					
 				<a  href="<c:url value="/inscription"></c:url>"
-							class="tabformul">Créer une compte</a>
+							class="buttonstandart"><fmt:message key="connection.creercompte"></fmt:message></a>
 
 			</div>
 		</div>
@@ -70,11 +70,11 @@
 				<h1 data-w-id="cf388477-460b-0c8e-8d99-efa38948d776"
 					class="headingbvbb">
 					<span data-w-id="cf388477-460b-0c8e-8d99-efa38948d777"
-						class="textbva">Soyez les bienvenus</span> <br>
+						class="textbva"><fmt:message key="connection.bvfirst"></fmt:message></span> <br>
 				</h1>
 				<h1 data-w-id="ba171d92-f7cc-acbe-abf0-39010432a838"
 					class="headingbvc">
-					<span class="textbva">dans le monde merveilleux des vins</span>
+					<span class="textbva"><fmt:message key="connection.bvsecond"></fmt:message></span>
 				</h1>
 			</div>
 		</div>

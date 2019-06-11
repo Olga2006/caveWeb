@@ -1,11 +1,13 @@
 <%@ page pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="messages"/>
 <!DOCTYPE html>
 <html data-wf-page="5c8a4e5935905d04eb6497f8"
 	data-wf-site="5bf300026add22d3cd0f2499">
 <head>
 <meta charset="utf-8">
-<title>Inscription</title>
+<title><fmt:message key="inscription.title"></fmt:message></title>
 <jsp:include page="/WEB-INF/jsp/head/head.jsp"></jsp:include>
 </head>
 <body>
@@ -26,55 +28,68 @@
 		
 				
 				
-				<div class="erreur">Vous avez une compte?</div>
+				<div class="erreur"><fmt:message key="inscription.vousavezcompte"></fmt:message></div>
 
-						<a data-w-id="0286df74-097a-f033-0838-aa37db8e0fab"
-							style="display: flex" href="<c:url value="/connection"></c:url>"
-							class="tabformul">Connecter à mon compte</a>
+						<a 
+							 href="<c:url value="/connection"></c:url>"
+							class="buttonstandart"><fmt:message key="connection.meconnecter"></fmt:message></a>
 				
 				
 				
 			<div class="butformulairenreg">
 				<div class="formblockconnectionsecond">
-					<form id="email-form" name="email-form" data-name="Email Form"
-						method="post" action="<c:url value="/inscription"></c:url>" redirect="cave"
-						data-redirect="cave" class="formaconnectioninscription">
+					<form id="email-form" name="email-form"
+						method="post" action="<c:url value="/inscription"></c:url>" class="formaconnectioninscription">
 
-						<label for="nom" class="labelformbouteille">Prénom
-							d&#x27;utilisateur<span class="requis">*</span></label>						
+						<label for="nom" class="labelformbouteille"><fmt:message key="inscription.label.prenom"></fmt:message><span class="requis">*</span></label>						
+							<c:if test="${!empty form.erreurs['nom']}">
+								<span class="erreur"><fmt:message key="inscription.erreur.nom"></fmt:message></span>								
+							</c:if>
 							<input type="text" class="inputformbouteille w-input"
-							autofocus="true" maxlength="30" name="nom" data-name="Nom 3"
-							value="<c:out value="${utilisateur.nom}"/>" id="nom" required="">
-							<span class="erreur">${form.erreurs['nom']}</span>
+							required="required" maxlength="30" name="nom" 
+							value="<c:out value="${utilisateur.nom}"/>" id="nom">
+							
+							
 							
 							<label
-							for="email" class="labelformbouteille"><strong class="labelform">Email
-								Address<span class="requis">*</span></strong></label>							
-								<input type="email" class="inputformbouteille w-input"
-							autofocus="true" maxlength="30" name="email"
-							data-name="Email 5" value="<c:out value="${utilisateur.email}"/>" id="email"
-							required="">
-							<span class="erreur">${form.erreurs['email']}</span>
-							
-							
-							<label for="motdepasse" class="labelformbouteille">Mot de passe</label>
+							for="email" class="labelformbouteille"><strong class="labelform"><fmt:message key="connection.label.email"></fmt:message><span class="requis">*</span></strong></label>							
+								<c:if test="${!empty form.erreurs['email']}">
+								<span class="erreur"><fmt:message key="inscription.erreur.email"></fmt:message></span>								
+							</c:if>
+								<input type="email" class="inputformbouteille w-input"  maxlength="30" name="email"
+							 value="<c:out value="${utilisateur.email}"/>" id="email" required="required">
+							 
+							 
+														
+							<label for="motdepasse" class="labelformbouteille"><fmt:message key="connection.label.motdepasseconnection"></fmt:message><span class="requis">*(<fmt:message key="inscription.span.required.motdepasse"></fmt:message>)</span></label>
+							<c:if test="${!empty form.erreurs['motdepasse']}">
+								<span class="erreur"><fmt:message key="inscription.erreur.motdepasse"></fmt:message></span>								
+							</c:if>
 							<input
-							type="password" maxlength="30" name="motdepasse"
-						  required="" id="motdepasse"
+							type="password" maxlength="30" name="motdepasse" required="required" id="motdepasse"
 							class="inputformbouteille w-input">
-							<span class="erreur">${form.erreurs['motdepasse']}</span>
+							
+							
+                            <c:if test="${!empty form.erreurs['confirmation']}">
+								<span class="erreur"><fmt:message key="inscription.erreur.confirmation"></fmt:message></span>								
+							</c:if>	
 							
 							<label for="confirmation"
-							class="labelformbouteille">Confirmation du mot de passe</label>
+							class="labelformbouteille"><fmt:message key="inscription.label.motdepasseconfirmation"></fmt:message><span class="requis">*</span></label>
 							<input
 							type="password" maxlength="30" name="confirmation"
-							 required="" id="confirmation"
+							 required="required" id="confirmation"
 							class="inputformbouteille w-input">
-							<span class="erreur">${form.erreurs['confirmation']}</span>
-
-						<input type="submit" value="Inscription"
-							data-wait="Veuillez patienter..."
-							class="tabformul">
+							
+													
+							
+                            <c:if test="${!empty form.erreurs['erreurDao']}">
+								<div class="erreur"><fmt:message key="erreur.dao"></fmt:message> ${form.erreurs['erreurDao']}</div>								
+							</c:if>
+							
+						<input type="submit" value="<fmt:message key="button.inscription"></fmt:message>"
+							data-wait="<fmt:message key="button.wait"></fmt:message>"
+							class="buttonstandart">
 					</form>
 
 				</div>

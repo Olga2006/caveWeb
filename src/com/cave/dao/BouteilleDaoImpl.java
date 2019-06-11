@@ -15,7 +15,7 @@ import com.cave.beans.Position;
 
 public class BouteilleDaoImpl implements BouteilleDao {
 
-    private static final String SQL_SELECT_POUR_UTILISATEUR                = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+    private static final String SQL_SELECT_POUR_UTILISATEUR                 = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
             +
             "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
             +
@@ -26,18 +26,7 @@ public class BouteilleDaoImpl implements BouteilleDao {
             "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
             "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.nom";
 
-    private static final String SQL_SELECT_POUR_UTILISATEUR_DATE_CONS_DESC = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
-            +
-            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
-            +
-            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
-            +
-            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
-            "FROM Bouteille \r\n" +
-            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
-            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.date_garder";
-
-    private static final String SQL_SELECT_PAR_ID                          = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+    private static final String SQL_SELECT_PAR_ID                           = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
             +
             "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation, Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
             +
@@ -47,7 +36,7 @@ public class BouteilleDaoImpl implements BouteilleDao {
             "FROM Bouteille \r\n" +
             "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
             "WHERE Bouteille.id = ? ORDER BY Bouteille.nom";
-    private static final String SQL_SELECT_POUR_PRODUCTEUR                 = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur,\r\n"
+    private static final String SQL_SELECT_POUR_PRODUCTEUR                  = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur,\r\n"
             +
             "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation, Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
             +
@@ -58,7 +47,7 @@ public class BouteilleDaoImpl implements BouteilleDao {
             "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
             "WHERE Bouteille.id_producteur = ? ORDER BY Bouteille.nom";
 
-    private static final String SQL_SELECT_PAR_NOM                         = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+    private static final String SQL_SELECT_PAR_NOM                          = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
             +
             "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation, Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
             +
@@ -67,25 +56,135 @@ public class BouteilleDaoImpl implements BouteilleDao {
             "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
             "FROM Bouteille \r\n" +
             "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
-            "WHERE Bouteille.id_utilisateur=? AND Bouteille.id_producteur = ? AND Bouteille.nom = ? AND  \r\n" +
+            "WHERE Bouteille.id_utilisateur=?  AND Bouteille.nom = ? AND Bouteille.pays =? AND  Bouteille.region =? AND Bouteille.appelation =? AND \r\n" +
             "Bouteille.couleur =? AND Bouteille.cru =? AND Bouteille.date_de_production =? AND Bouteille.taille =? AND \r\n"
             +
             "bouteille.prix_achat=?";
 
-    private static final String SQL_INSERT                                 = "INSERT INTO Bouteille (nom, couleur, pays, region, appelation, cru, taille, prix_achat, prix_actuelle, \r\n"
+    private static final String SQL_INSERT                                  = "INSERT INTO Bouteille (nom, couleur, pays, region, appelation, cru, taille, prix_achat, prix_actuelle, \r\n"
             + "date_de_production, date_garder, image, id_producteur, id_utilisateur, nbr_list_courses, commentaire, evaluation) \r\n"
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    private static final String SQL_DELETE_PAR_ID                          = "DELETE FROM Bouteille  WHERE id = ?";
-    private static final String SQL_UPDATE_COMMENTAIRE                     = "UPDATE bouteille SET  commentaire = ? WHERE id = ?";
-    private static final String SQL_UPDATE_LIST_COURSES                    = "UPDATE bouteille SET  nbr_list_courses = ? WHERE id = ?";
-    private static final String SQL_UPDATE_EVALUATION                      = "UPDATE bouteille SET  evaluation = ? WHERE id = ?";
+    private static final String SQL_DELETE_PAR_ID                           = "DELETE FROM Bouteille  WHERE id = ?";
+    private static final String SQL_UPDATE_COMMENTAIRE                      = "UPDATE bouteille SET  commentaire = ? WHERE id = ?";
+    private static final String SQL_UPDATE_LIST_COURSES                     = "UPDATE bouteille SET  nbr_list_courses = ? WHERE id = ?";
+    private static final String SQL_UPDATE_EVALUATION                       = "UPDATE bouteille SET  evaluation = ? WHERE id = ?";
 
-    private static final String SQL_UPDATE                                 = "UPDATE bouteille SET  nom = ?, couleur = ?, pays = ?, region = ?, appelation = ?, cru = ?, taille = ?, prix_achat = ?,"
+    private static final String SQL_UPDATE                                  = "UPDATE bouteille SET  nom = ?, couleur = ?, pays = ?, region = ?, appelation = ?, cru = ?, taille = ?, prix_achat = ?,"
             + " prix_actuelle = ?, date_de_production = ?, date_garder = ?, image = ?, id_producteur = ?, "
             + "nbr_list_courses = ?, commentaire = ?, evaluation = ?  WHERE id = ?";
 
-    private static final String MESSAGE_DAO                                = "Échec. Merci de réessayer dans quelques instants et en cas d'échec informez notre service technique ";
+    private static final String MESSAGE_DAO                                 = " ";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_DATE_PROD_DESC  = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.date_de_production";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_PRIX_ACT_DESC   = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.prix_actuelle";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_PRIX_ACHAT_DESC = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.prix_achat";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_TAILLE_DESC     = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.taille";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_COULEUR_DESC    = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.couleur";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_CRU_DESC        = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.cru";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_APPELATION_DESC = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.appelation";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_REGION_DESC     = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.region";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_PAYS_DESC       = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.pays";
+
+    private static final String SQL_SELECT_POUR_UTILISATEUR_DATE_CONS_DESC  = "SELECT Bouteille.id, Bouteille.id_producteur, producteur.nom as nom_producteur, \r\n"
+            +
+            "Bouteille.nom, Bouteille.couleur, Bouteille.taille, Bouteille.pays, Bouteille.region, Bouteille.appelation, Bouteille.cru, Bouteille.evaluation,  Bouteille.commentaire, Bouteille.nbr_list_courses, Bouteille.date_de_production, \r\n"
+            +
+            "Bouteille.date_garder, ((Bouteille.date_garder) - (YEAR(NOW()))) AS nbr_anee_boir_bouteille, Bouteille.image, Bouteille.id_utilisateur, bouteille.prix_achat, bouteille.prix_actuelle,\r\n"
+            +
+            "bouteille.commentaire, bouteille.nbr_list_courses \r\n" +
+            "FROM Bouteille \r\n" +
+            "LEFT OUTER JOIN Producteur ON Producteur.id = Bouteille.id_producteur\r\n" +
+            "WHERE Bouteille.id_utilisateur = ? ORDER BY Bouteille.date_garder";
 
     private static DAOFactory   daoFactory;
 
@@ -170,8 +269,8 @@ public class BouteilleDaoImpl implements BouteilleDao {
 
     @Override
     public Bouteille trouver( Bouteille bouteille ) throws DAOException {
-        return trouver( SQL_SELECT_PAR_NOM, bouteille.getUtilisateur().getId(), bouteille.getIdProducteur(),
-                bouteille.getNom(), bouteille.getCouleur(),
+        return trouver( SQL_SELECT_PAR_NOM, bouteille.getUtilisateur().getId(),
+                bouteille.getNom(), bouteille.getPays(), bouteille.getRegion(), bouteille.getAppelation(), bouteille.getCouleur(),
                 bouteille.getCru(), bouteille.getDateDeProduction(), bouteille.getTaille(), bouteille.getPrixAchat() );
     }
 
@@ -185,34 +284,6 @@ public class BouteilleDaoImpl implements BouteilleDao {
             /* Récupération d'une connexion depuis la Factory */
             connexion = daoFactory.getConnection();
             preparedStatement = initialisationRequetePreparee( connexion, SQL_SELECT_POUR_UTILISATEUR, false,
-                    id_utilisateur );
-            resultSet = preparedStatement.executeQuery();
-            /*
-             * Parcours de la ligne de données de l'éventuel ResulSet retourné
-             */
-            while ( resultSet.next() ) {
-                bouteilles.add( map( resultSet ) );
-            }
-        } catch ( SQLException e ) {
-            throw new DAOException( MESSAGE_DAO + e );
-        } finally {
-            fermeturesSilencieuses( resultSet, preparedStatement, connexion );
-        }
-
-        return bouteilles;
-    }
-
-    @Override
-    public List<Bouteille> listerPourUtilisateurDateConsDesc( Long id_utilisateur ) throws DAOException {
-        Connection connexion = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        List<Bouteille> bouteilles = new ArrayList<Bouteille>();
-        try {
-            /* Récupération d'une connexion depuis la Factory */
-            connexion = daoFactory.getConnection();
-            preparedStatement = initialisationRequetePreparee( connexion, SQL_SELECT_POUR_UTILISATEUR_DATE_CONS_DESC,
-                    false,
                     id_utilisateur );
             resultSet = preparedStatement.executeQuery();
             /*
@@ -266,12 +337,11 @@ public class BouteilleDaoImpl implements BouteilleDao {
             connexion = daoFactory.getConnection();
             preparedStatement = initialisationRequetePreparee( connexion, SQL_DELETE_PAR_ID, false, id );
             int statut = preparedStatement.executeUpdate();
-            /* Analyse du statut retourné par la requête d'insertion */
-            if ( statut == 0 ) {
-                throw new DAOException( MESSAGE_DAO );
-            } else {
-                id = null;
-            }
+
+            /*
+             * if ( statut == 0 ) { throw new DAOException( MESSAGE_DAO ); }
+             * else { id = null; }
+             */
 
         } catch ( SQLException e ) {
             throw new DAOException( MESSAGE_DAO + e );
@@ -387,6 +457,87 @@ public class BouteilleDaoImpl implements BouteilleDao {
         }
 
         return bouteille;
+    }
+
+    /*
+     * ------------------TRIER------------------------------------------------
+     */
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurPaysDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_PAYS_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurRegionDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_REGION_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurAppelationDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_APPELATION_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurCruDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_CRU_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurCouleurDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_COULEUR_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurTailleDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_TAILLE_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurPrixAchatDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_PRIX_ACHAT_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurPrixActuelleDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_PRIX_ACT_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurDateDeProductionDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_DATE_PROD_DESC, id_utilisateur );
+    }
+
+    @Override
+    public List<Bouteille> listerPourUtilisateurDateConsDesc( Long id_utilisateur ) throws DAOException {
+        return listerPourUtilisateurAvecTri( SQL_SELECT_POUR_UTILISATEUR_DATE_CONS_DESC, id_utilisateur );
+    }
+
+    private List<Bouteille> listerPourUtilisateurAvecTri( String sql, Long id_utilisateur ) throws DAOException {
+        Connection connexion = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Bouteille> bouteilles = new ArrayList<Bouteille>();
+        try {
+            /* Récupération d'une connexion depuis la Factory */
+            connexion = daoFactory.getConnection();
+            preparedStatement = initialisationRequetePreparee( connexion, sql,
+                    false,
+                    id_utilisateur );
+            resultSet = preparedStatement.executeQuery();
+            /*
+             * Parcours de la ligne de données de l'éventuel ResulSet retourné
+             */
+            while ( resultSet.next() ) {
+                bouteilles.add( map( resultSet ) );
+            }
+        } catch ( SQLException e ) {
+            throw new DAOException( MESSAGE_DAO + e );
+        } finally {
+            fermeturesSilencieuses( resultSet, preparedStatement, connexion );
+        }
+
+        return bouteilles;
     }
 
     /*
