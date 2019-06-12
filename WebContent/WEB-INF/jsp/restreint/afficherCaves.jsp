@@ -30,7 +30,7 @@
 
 			</c:when>
 			<c:otherwise>
-				<div class="divbvdanscave descriptnom">
+				<div class="divbvdanscave">
 					<h1 class="heading bvheading">${sessionUtilisateur.nom },</h1>
 					<h1 class="heading bvheading">
 						<fmt:message key="caves.bvmessage"></fmt:message>
